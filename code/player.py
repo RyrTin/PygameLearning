@@ -1,6 +1,5 @@
 # 作   者：许晨昊
 # 开发日期：14/3/2023
-import pygame
 from settings import *
 from support import *
 from timer import Timer
@@ -27,10 +26,10 @@ class Player(pygame.sprite.Sprite):
         # 初始化精灵
         # 设置精灵图像
         self.image = self.animations[self.status][self.frame_index]
-        # 填充精灵颜色
-        # self.image.fill('green')
         # 设置精灵位置
         self.rect = self.image.get_rect(center=pos)
+        # 设置精灵图层
+        self.z = LAYERS['main']
 
         # 移动属性：方向，位置，速度
         # 方向属性：使用一个2维向量保存移动方向

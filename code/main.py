@@ -25,7 +25,10 @@ class Game:
                     pygame.quit()
                     sys.exit()
             # delta time 可以保证物体每秒的移动距离相等
+            # 不同设备执行一帧的时间是不同的 也就是每个update时间不恒等 但是 一秒内 dt 的总和是固定的
+            # clock.tick()将统计当前帧和上一帧之间的时间间隔，单位为s，通常/1000 以转化为毫秒
             dt = self.clock.tick() / 1000
+            # print(dt)
             # 调用level中的run方法
             self.level.run(dt)
             # 刷新画面(只要改变就刷新，所以不用固定刷新速度）

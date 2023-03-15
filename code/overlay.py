@@ -5,6 +5,7 @@ import pygame
 from settings import *
 
 
+# 覆盖层类似于UI的功能
 class Overlay:
     def __init__(self, player):
         # 初始设置 导入player
@@ -17,11 +18,14 @@ class Overlay:
                            for tool in player.tools}
         self.seeds_surf = {seed: pygame.image.load(f'{overlay_path}{seed}.png').convert_alpha()
                            for seed in player.seeds}
-        print(self.tools_surf)
-        print(self.seeds_surf)
 
     def display(self):
-
-        # 显示现在用的工具是什么
+        # 显示工具图标
         tool_surf = self.tools_surf[self.player.selected_tool]
-        self.display_surface.blit(tool_surf, (0, 0))
+        tool_rect = tool_surf.get_rect(midbottom=OVERLAY_POSITIONS['tool'])
+        self.display_surface.blit(tool_surf, tool_rect)
+
+        # 显示种子图标
+        seed_surf = self.seeds_surf[self.player.selected_seed]
+        seed_rect = seed_surf.get_rect(midbottom=OVERLAY_POSITIONS['seed'])
+        self.display_surface.blit(seed_surf, seed_rect)
