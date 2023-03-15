@@ -3,6 +3,7 @@
 import pygame
 from settings import *
 from player import Player
+from overlay import Overlay
 
 
 # 负责绘制背景和精灵的类
@@ -14,7 +15,9 @@ class Level:
         self.display_surface = pygame.display.get_surface()
         # 创建sprite的容器all_sprites(全局变量？)
         self.all_sprites = pygame.sprite.Group()
+        # 实例化一个player,player是整个程序的核心部分
         self.setup()
+        self.overlay = Overlay(self.player)
 
     def setup(self):
         # 创建并设置精灵(all_sprite实体) (player调用的是sprite父类初始化方法）
@@ -28,3 +31,5 @@ class Level:
         self.all_sprites.draw(self.display_surface)
         # 刷新精灵组(文档找不到详细说明，个人理解：直接按顺序调用group中每个实例化的sprite中的update()）
         self.all_sprites.update(dt)
+
+        self.overlay.display()
