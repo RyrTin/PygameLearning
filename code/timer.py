@@ -26,7 +26,7 @@ class Timer:
         current_time = pygame.time.get_ticks()
         # 检测是否超时
         if current_time - self.start_time >= self.duration:
-            # 关闭计时器（结束动画）
-            self.deactivate()
-            if self.func:
+            if self.func and self.active:
                 self.func()
+            # 执行方法后立刻关闭计时器
+            self.deactivate()

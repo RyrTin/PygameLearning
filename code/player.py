@@ -9,14 +9,19 @@ from timer import Timer
 # 主要被level导包
 # 重写sprite类
 class Player(pygame.sprite.Sprite):
+    # tips:大部分与玩家相关的功能都应该与Player有关，所以实现一个方法后必须考虑放在Player的什么位置
+    # 比如这里需要跟树木精灵 tree_sprites 进行交互，所以也应该作为参数传到Player的类中
     # 初始化
-    def __init__(self, pos, group):
+    def __init__(self, pos, group, collision_sprites, tree_sprites):
         # 调用父类方法初始化
         super().__init__(group)
-
+        # 主要有各种功能素材，属性的初始化
         # 导入动画素材包
-
-        self.animations = None
+        self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
+                           'right_idle': [], 'left_idle': [], 'up_idle': [], 'down_idle': [],
+                           'right_hoe': [], 'left_hoe': [], 'up_hoe': [], 'down_hoe': [],
+                           'right_axe': [], 'left_axe': [], 'up_axe': [], 'down_axe': [],
+                           'right_water': [], 'left_water': [], 'up_water': [], 'down_water': []}
         self.import_assets()
 
         # 角色初始状态为面朝下
@@ -26,7 +31,7 @@ class Player(pygame.sprite.Sprite):
         # 初始化精灵
         # 设置精灵图像
         self.image = self.animations[self.status][self.frame_index]
-        # 设置精灵位置
+        # 设置精灵矩形（rect是一个矩形，大致包含整个图像的大小和位置信息）
         self.rect = self.image.get_rect(center=pos)
         # 设置精灵图层
         self.z = LAYERS['main']
@@ -39,6 +44,10 @@ class Player(pygame.sprite.Sprite):
         # 速度属性
         self.speed = 200
 
+        # 碰撞检测！（狂喜） 拷贝一个精灵rect，适当缩小边缘，并且需要跟随精灵，这一点将在move方法里体现
+        self.hitbox = self.rect.copy().inflate((-126, -70))
+        self.collision_sprites = collision_sprites
+
         # 计时器(这里用词典形式保存实例化的计时器）
         # 计时器是重要的时间控制工具，主要控制某个方法的持续时间或按键响应次数等
         self.timers = {
@@ -47,21 +56,39 @@ class Player(pygame.sprite.Sprite):
             'seed use': Timer(350, self.use_seed),
             'seed switch': Timer(200)
         }
+        # 初始化目标点
+        self.target_pos = None
 
         # 工具
+        # 建立字典和索引
         self.tools = ['hoe', 'axe', 'water']
         self.tool_index = 0
         self.selected_tool = self.tools[self.tool_index]
 
         # 种子
+        # 建立字典和索引
         self.seeds = ['corn', 'tomato']
         self.seed_index = 0
         self.selected_seed = self.seeds[self.seed_index]
 
-    # 暂时没用
+        # 树
+        self.tree_sprites = tree_sprites
+
+    # 通过碰撞检测响应动作
     def use_tool(self):
-        # print(self.selected_tool)
-        pass
+        # print('tool use')
+        if self.selected_tool == 'hoe':
+            pass
+        if self.selected_tool == 'axe':
+            for tree in self.tree_sprites.sprites():
+                if tree.rect.collidepoint(self.target_pos):
+                    tree.damage()
+
+        if self.selected_tool == 'water':
+            pass
+
+    def get_target_pos(self):
+        self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
 
     def use_seed(self):
         pass
@@ -70,11 +97,6 @@ class Player(pygame.sprite.Sprite):
     def import_assets(self):
 
         # 动作组名称词典
-        self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
-                           'right_idle': [], 'left_idle': [], 'up_idle': [], 'down_idle': [],
-                           'right_hoe': [], 'left_hoe': [], 'up_hoe': [], 'down_hoe': [],
-                           'right_axe': [], 'left_axe': [], 'up_axe': [], 'down_axe': [],
-                           'right_water': [], 'left_water': [], 'up_water': [], 'down_water': []}
         # 调用一个import_folder方法来导入每个动作组的所有图片
         for animation in self.animations.keys():
             full_path = '../graphics/character/' + animation
@@ -115,15 +137,18 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = 0
 
             # 控制工具
+            # 事实上方法被运行一次以后计时器就被关闭了，所以这里可以不用约束
             if keys[pygame.K_SPACE]:
                 # 这里按下空格后activate持续了350ms
+                # activate以后 get_status就能一直根据计时器的active状态使角色短时间内一直处于某种状态（控制动画时常）
+                # 同时根据字典将方法传入Timer开始运作
                 self.timers['tool use'].activate()
                 # 使用工具时不能移动，所以初始化速度（即位移变为0，0）
                 self.direction = pygame.math.Vector2()
                 # 重置动画帧
                 self.frame_index = 0
-            # 切换工具(按Q 并且还未激活计时器)
-            if keys[pygame.K_q] and not self.timers['tool switch'].active:
+            # 切换工具(用计时器约束切换时间 以及切换条件，如不能在工具正在被使用时切换)
+            if keys[pygame.K_q] and not self.timers['tool switch'].active and not self.timers['tool use'].active:
                 # 计时器在激活期间按键落下的判定就不会触发 主要起到这个作用
                 self.timers['tool switch'].activate()
                 self.tool_index += 1
@@ -167,7 +192,31 @@ class Player(pygame.sprite.Sprite):
         for timer in self.timers.values():
             timer.update()
 
-    # 移动精灵
+    # 碰撞检测(人物)
+    def collision(self, direction):
+        # 遍历碰撞组中的碰撞盒
+        for sprite in self.collision_sprites.sprites():
+            # hasattr  has attribute的缩写 检查是否有某种属性
+            if hasattr(sprite, 'hitbox'):
+                # pygame自带的矩形碰撞检测，返回True or False
+                if sprite.hitbox.colliderect(self.hitbox):
+                    if direction == 'horizontal':
+                        if self.direction.x > 0:  # 向右移动
+                            # 把角色右边缘重置到碰撞物的左边缘（原始的方法） 后面的同理
+                            self.hitbox.right = sprite.hitbox.left
+                        if self.direction.x < 0:  # 向左移动
+                            self.hitbox.left = sprite.hitbox.right
+                        self.rect.centerx = self.hitbox.centerx
+                        self.pos.x = self.hitbox.centerx
+                    if direction == 'vertical':
+                        if self.direction.y > 0:  # 向下移动
+                            self.hitbox.bottom = sprite.hitbox.top
+                        if self.direction.y < 0:  # 向上移动
+                            self.hitbox.top = sprite.hitbox.bottom
+                        self.rect.centery = self.hitbox.centery
+                        self.pos.y = self.hitbox.centery
+
+    # 移动精灵 和 碰撞盒
     def move(self, dt):
         # 统一速度
         if self.direction.magnitude() > 0:
@@ -175,16 +224,23 @@ class Player(pygame.sprite.Sprite):
 
         # 水平移动
         self.pos.x += self.direction.x * self.speed * dt
-        self.rect.centerx = self.pos.x
+        # 这里四舍五入可以减少一些偶然的bug（？）
+        self.hitbox.centerx = round(self.pos.x)
+        self.rect.centerx = self.hitbox.centerx
+        self.collision('horizontal')
+
         # 垂直移动
         self.pos.y += self.direction.y * self.speed * dt
-        self.rect.centery = self.pos.y
+        self.hitbox.centery = round(self.pos.y)
+        self.rect.centery = self.hitbox.centery
+        self.collision('vertical')
 
-    # 重写Sprite中的update方法
+    # 重写Sprite中的update方法 tip:所有每一帧需要刷新的动作都放在这里
     def update(self, dt):
         self.input()
         self.get_status()
         self.update_timers()
+        self.get_target_pos()
 
         self.move(dt)
         self.animate(dt)
