@@ -1,5 +1,7 @@
 # 作   者：许晨昊
 # 开发日期：14/3/2023
+import pygame
+
 from settings import *
 from support import *
 from timer import Timer
@@ -12,7 +14,7 @@ class Player(pygame.sprite.Sprite):
     # tips:大部分与玩家相关的功能都应该与Player有关，所以实现一个方法后必须考虑放在Player的什么位置
     # 比如这里需要跟树木精灵 tree_sprites 进行交互，所以也应该作为参数传到Player的类中
     # 初始化
-    def __init__(self, pos, group, collision_sprites, tree_sprites):
+    def __init__(self, pos, group, collision_sprites, tree_sprites, interaction):
         # 调用父类方法初始化
         super().__init__(group)
         # 主要有各种功能素材，属性的初始化
@@ -74,6 +76,18 @@ class Player(pygame.sprite.Sprite):
         # 树
         self.tree_sprites = tree_sprites
 
+        # 交互
+        self.interaction = interaction
+        self.sleep = False
+
+        # 仓库(词典)
+        self.item_inventory = {
+            'wood': 0,
+            'apple': 0,
+            'corn': 0,
+            'tomato': 0
+        }
+
     # 通过碰撞检测响应动作
     def use_tool(self):
         # print('tool use')
@@ -87,9 +101,11 @@ class Player(pygame.sprite.Sprite):
         if self.selected_tool == 'water':
             pass
 
+    # 获得目标点
     def get_target_pos(self):
         self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
 
+    # 使用工具
     def use_seed(self):
         pass
 
@@ -115,8 +131,8 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        # 使用工具时无法移动
-        if not self.timers['tool use'].active:
+        # 使用工具，睡觉时无法移动
+        if not self.timers['tool use'].active and not self.sleep:
             # 控制方向
             if keys[pygame.K_UP]:
                 self.direction.y = -1
@@ -172,6 +188,20 @@ class Player(pygame.sprite.Sprite):
                 self.seed_index = self.seed_index if self.seed_index < len(self.seeds) else 0
                 self.selected_seed = self.seeds[self.seed_index]
                 # print(self.selected_seed)
+
+            # 交互区
+            if keys[pygame.K_RETURN]:
+
+                collided_interaction_sprite = pygame.sprite.spritecollide(self, self.interaction, False)
+                if collided_interaction_sprite:
+                    # 触发交互就不能动了
+                    self.direction = pygame.math.Vector2()
+                    if collided_interaction_sprite[0].name == 'Trader':
+                        pass
+                    else:
+                        # 强制面朝左
+                        self.status = 'left_idle'
+                        self.sleep = True
 
     # 获得Sprite当前的状态
     def get_status(self):

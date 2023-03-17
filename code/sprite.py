@@ -42,6 +42,13 @@ class Water(Generic):
         self.animate(dt)
 
 
+class Interaction(Generic):
+    def __init__(self, pos, size, groups, name):
+        surf = pygame.Surface(size)
+        super().__init__(pos, surf, groups)
+        self.name = name
+
+
 # 花朵同理
 class WildFlower(Generic):
     def __init__(self, pos, surf, groups):
@@ -52,7 +59,7 @@ class WildFlower(Generic):
 # 树有多种状态所以需要很多不同的方法
 # 因此当一个精灵需要被改变时通常在他的内部加一些方法
 class Tree(Generic):
-    def __init__(self, pos, surf, groups, name):
+    def __init__(self, pos, surf, groups, name, player_add):
         super().__init__(pos, surf, groups)
         # 属性
         self.health = 5
@@ -68,6 +75,8 @@ class Tree(Generic):
         # 创建苹果精灵组
         self.apple_sprites = pygame.sprite.Group()
         self.create_fruit()
+
+        self.player_add = player_add
 
     def damage(self):
 
@@ -86,6 +95,8 @@ class Tree(Generic):
                 surf=random_apple.image,
                 groups=self.groups()[0],
                 z=LAYERS['fruit'])
+            # 玩家获得一个苹果
+            self.player_add('apple')
             # kill方法可以消除精灵
             random_apple.kill()
 
@@ -112,10 +123,13 @@ class Tree(Generic):
                 z=LAYERS['fruit'],
                 duration=500
             )
+            # 替换树木贴图为树桩
             self.image = self.stump_surf
             self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
             self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
             self.alive = False
+            # 玩家获得一个木头
+            self.player_add('wood')
 
     def update(self, dt):
         if self.alive:

@@ -5,7 +5,7 @@ import pygame
 from settings import *
 
 
-# 覆盖层类似于UI的功能
+# 覆盖层类似于UI的功能，并且相对于其他元素，这里的东西都固定在屏幕上
 class Overlay:
     def __init__(self, player):
         # 初始设置 导入player

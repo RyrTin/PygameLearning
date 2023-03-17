@@ -7,31 +7,43 @@ from overlay import Overlay
 from sprite import *
 from pytmx.util_pygame import load_pygame
 from support import *
+from transition import Transition
 
 
 # 负责绘制所有精灵的类
 class Level:
+    # 各类初始化（精灵需要先创建组，再创建个体）
     def __init__(self):
-        # tip:基本各种精灵组的创建都在这里
+        # tip:基本各种精灵组的创建都在这里,任何精灵都要先建组，再实例化并分组
+        # 这里实例化一个玩家用于保存后面的玩家精灵（其他精灵实例化以后都保存在精灵组里，没有名字，实例了但没有完全实例）
         self.player = None
         # 获取当前显示的Surface对象（这里应该是整个显示窗口？）（官网文档没有看懂，存疑）
         self.display_surface = pygame.display.get_surface()
-        # 创建sprite的空容器all_sprites(这里使用对Group重写的CameraGroup)
+
+        # 创建各种精灵组
+        # 创建相机精灵族的空容器all_sprites(这里使用对Group重写的CameraGroup，相机导致实际位置与逻辑位置不重合，所以单独建组)
         self.all_sprites = CameraGroup()
         # 创建树木精灵的空容器
         self.tree_sprites = pygame.sprite.Group()
         # 创建hitbox的空容器collision_sprite用于碰撞检测
         self.collision_sprite = pygame.sprite.Group()
+        # 创建交互精灵组
+        self.interaction_sprites = pygame.sprite.Group()
+
         # 实例化各种精灵，精灵是整个程序的核心部分
         self.setup()
+        # 显示各种栏位界面
         self.overlay = Overlay(self.player)
+        # 过渡界面
+        self.transition = Transition(self.reset, self.player)
 
-    # 创建精灵和碰撞盒并持久保存
+    # 创建精灵和碰撞盒并在游戏运行时持久保存
     def setup(self):
         # 把各种图层信息保存在方格里的地图
         tmx_data = load_pygame('../data/map.tmx')
 
         # 创建精灵通常需要传一个group参数，似乎是用来确定这个精灵在哪个group里，相当于一个分类
+        # 所有精灵的第一个分组基本都是all_sprites(如果需要画出来话)
         # 房子
         # 从每个图层中获取相应的物品贴图和位置信息，并用通用精灵方式生成精灵和相应的碰撞盒
         # 注意先后顺序 即使在同一优先级 也有内部先后顺序，先建立的精灵依然在底部
@@ -43,40 +55,53 @@ class Level:
             for x, y, surf in tmx_data.get_layer_by_name(layer).tiles():
                 Generic((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites)
 
-        # 栅栏
+        # 创建栅栏
         # 两个group就是把同一个精灵归到两个组里，并且碰撞组主要使用hitbox这个属性（猜测）
         for x, y, surf in tmx_data.get_layer_by_name('Fence').tiles():
             Generic((x * TILE_SIZE, y * TILE_SIZE), surf, [self.all_sprites, self.collision_sprite])
 
-        # 水
+        # 生成水
         water_frames = import_folder('../graphics/water')
         for x, y, surf in tmx_data.get_layer_by_name('Water').tiles():
             Water((x * TILE_SIZE, y * TILE_SIZE), water_frames, self.all_sprites)
-        # 树
+        # 生成树
         for obj in tmx_data.get_layer_by_name('Trees'):
-            Tree((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprite, self.tree_sprites], obj.name)
-        # 野花
+            Tree(
+                pos=(obj.x, obj.y),
+                surf=obj.image,
+                groups=[self.all_sprites, self.collision_sprite, self.tree_sprites],
+                name=obj.name,
+                # 这里实际上传了个方法进去而不是参数
+                # 为什么不直接写在树的精灵里？ 个人理解是树精灵类包含于玩家类，而玩家类包含于lever类所以写在level里
+                # 这样就能实现跨类的方法实现,理论上这个方法写到玩家类里也没有问题，在damage树的同时生效
+                # 这样等于是把这个方法传到了最里面的tree的damage()方法里，从逻辑角度上最合理
+                player_add=self.player_add
+            )
+        # 生成野花
         for obj in tmx_data.get_layer_by_name('Decoration'):
             WildFlower((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprite])
 
-        # 碰撞瓷砖 （tiled 软件生成的地图自带碰撞瓷砖）
+        # 生成碰撞瓷砖 （tiled 软件生成的地图自带碰撞瓷砖）
         for x, y, sur in tmx_data.get_layer_by_name('Collision').tiles():
             # 不需要可视化，只要用一个空的surf 然后放进碰撞组就可以了
             Generic((x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE)), self.collision_sprite)
 
         # 创建并设置精灵(all_sprite实体) (player调用的是sprite父类初始化方法）
         # player重写了sprites父类的方法，实例化以后会在group里添加一个精灵
-        # 玩家
+        # 根据map找到玩家的位置并获得位置参数，然后生成玩家精灵
         for obj in tmx_data.get_layer_by_name('Player'):
             if obj.name == 'Start':
                 self.player = Player(
                     pos=(obj.x, obj.y),
                     group=self.all_sprites,
                     collision_sprites=self.collision_sprite,
-                    tree_sprites=self.tree_sprites
+                    tree_sprites=self.tree_sprites,
+                    interaction=self.interaction_sprites
                 )
+            if obj.name == 'Bed':
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
 
-        # 地图
+        # 生成地图
         Generic(
             pos=(0, 0),
             surf=pygame.image.load('../graphics/world/ground.png').convert_alpha(),
@@ -84,24 +109,47 @@ class Level:
             z=LAYERS['ground']
         )
 
+    # 添加玩家物品
+    def player_add(self, item):
+
+        self.player.item_inventory[item] += 1
+
+    # 重置
+    def reset(self):
+
+        # 重置苹果树
+        for tree in self.tree_sprites.sprites():
+            for apple in tree.apple_sprites.sprites():
+                apple.kill()
+            tree.create_fruit()
+
+    # 游戏运行
     def run(self, dt):
+        # dt保证了每个sprite刷新一次的时间相等，从而控制时间同步
         # 填充背景（显示区域） (覆盖上一个大循环生成的所有画面，可以保证显示区域外都是黑屏，不然都是拖影，之前绘制的画面永远都在）
         self.display_surface.fill('black')
-        # 绘制精灵组（all_sprite)到显示区域（surface)
+        # 绘制精灵组(all_sprite)到显示区域（surface),所有具有图形的精灵都在这个组里，所以跑update()是没有问题的
         # self.all_sprites.draw(self.display_surface)
-        # 以player为中心绘制所有的sprite，不会画出碰撞盒，这里的参数就是Camera中心的精灵
-        self.all_sprites.custom_draw(self.player)
+
         # 刷新精灵组(文档找不到详细说明，个人理解：直接按顺序调用group中每个实例化的sprite中的update()）
         # 这里的update方法几乎都是重写的，一般都是根据动画帧找到下一帧来改变image属性，真正意义上的刷新画面是上面的custom_draw方法
         self.all_sprites.update(dt)
 
+        # 以player为中心绘制所有的sprite，不会画出碰撞盒，这里的参数就是Camera中心的精灵
+        self.all_sprites.custom_draw(self.player)
+
         self.overlay.display()
+        # print(self.player.item_inventory)
+
+        # 玩家睡觉时调用过渡画面方法
+        if self.player.sleep:
+            self.transition.play()
 
 
 class CameraGroup(pygame.sprite.Group):
     def __init__(self):
         super().__init__()
-        # 获取当前显示区域(surface很抽象，不好理解)
+        # 获取当前显示区域(整个显示画面)，因为后面的blit是默认叠加在当前显示区域上的
         self.display_surface = pygame.display.get_surface()
         # 相机位移量
         self.offset = pygame.math.Vector2()
