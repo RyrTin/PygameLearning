@@ -8,6 +8,7 @@ from sprite import *
 from pytmx.util_pygame import load_pygame
 from support import *
 from transition import Transition
+from soil import SoilLayer
 
 
 # 负责绘制所有精灵的类
@@ -36,6 +37,8 @@ class Level:
         self.overlay = Overlay(self.player)
         # 过渡界面
         self.transition = Transition(self.reset, self.player)
+        # 土壤层
+        self.soil_layer = SoilLayer(self.all_sprites)
 
     # 创建精灵和碰撞盒并在游戏运行时持久保存
     def setup(self):

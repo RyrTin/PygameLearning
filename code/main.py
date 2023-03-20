@@ -24,9 +24,10 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-            # delta time 可以保证物体每秒的移动距离相等
-            # 不同设备执行一帧的时间是不同的 也就是每个update时间不恒等 但是 一秒内 dt 的总和是固定的
-            # clock.tick()将统计当前帧和上一帧之间的时间间隔，单位为s，通常/1000 以转化为毫秒
+            # clock.tick()将统计当前tick和上一此tick的时间间隔，单位为s，通常/1000 以转化为毫秒
+            # 上一帧结束了，这帧准备开始，也就是两次动作之间的间隔时间，通过这个时间来控制精灵图片的位移
+            # 这样便保证了在不同帧数下，一秒内各种精灵贴图的位移是固定的、
+            # 这里传给后面一个dt 所有需要移动的方法都以这个dt为参数
             dt = self.clock.tick() / 1000
             # print(dt)
             # 调用level中的run方法

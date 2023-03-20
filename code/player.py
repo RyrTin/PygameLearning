@@ -265,12 +265,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.centery = self.hitbox.centery
         self.collision('vertical')
 
-    # 重写Sprite中的update方法 tip:所有每一帧需要刷新的动作都放在这里
+    # 重写Sprite中的update方法 tip:所有每一帧需要刷新的动作都放在这里，每一帧跑一次
     def update(self, dt):
         self.input()
         self.get_status()
         self.update_timers()
         self.get_target_pos()
 
+        # 跟移动图片有关的方法往往需要dt
         self.move(dt)
         self.animate(dt)
