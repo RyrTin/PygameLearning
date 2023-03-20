@@ -30,15 +30,15 @@ class Level:
         self.collision_sprite = pygame.sprite.Group()
         # 创建交互精灵组
         self.interaction_sprites = pygame.sprite.Group()
-
-        # 实例化各种精灵，精灵是整个程序的核心部分
+        # 土壤层
+        self.soil_layer = SoilLayer(self.all_sprites)
+        # 实例化各种精灵，精灵是整个程序的核心部分,且必须放在所拥有的实参类被创造之后
         self.setup()
-        # 显示各种栏位界面
+        # 需要player参数的初始化放在最后
+        # 创建覆盖层(UI)
         self.overlay = Overlay(self.player)
         # 过渡界面
         self.transition = Transition(self.reset, self.player)
-        # 土壤层
-        self.soil_layer = SoilLayer(self.all_sprites)
 
     # 创建精灵和碰撞盒并在游戏运行时持久保存
     def setup(self):
@@ -99,7 +99,8 @@ class Level:
                     group=self.all_sprites,
                     collision_sprites=self.collision_sprite,
                     tree_sprites=self.tree_sprites,
-                    interaction=self.interaction_sprites
+                    interaction=self.interaction_sprites,
+                    soil_layer=self.soil_layer
                 )
             if obj.name == 'Bed':
                 Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)

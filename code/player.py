@@ -14,7 +14,7 @@ class Player(pygame.sprite.Sprite):
     # tips:大部分与玩家相关的功能都应该与Player有关，所以实现一个方法后必须考虑放在Player的什么位置
     # 比如这里需要跟树木精灵 tree_sprites 进行交互，所以也应该作为参数传到Player的类中
     # 初始化
-    def __init__(self, pos, group, collision_sprites, tree_sprites, interaction):
+    def __init__(self, pos, group, collision_sprites, tree_sprites, interaction, soil_layer):
         # 调用父类方法初始化
         super().__init__(group)
         # 主要有各种功能素材，属性的初始化
@@ -88,18 +88,22 @@ class Player(pygame.sprite.Sprite):
             'tomato': 0
         }
 
+        # 土壤
+        self.soil_layer = soil_layer
+
     # 通过碰撞检测响应动作
     def use_tool(self):
         # print('tool use')
         if self.selected_tool == 'hoe':
-            pass
+            self.soil_layer.get_hit(self.target_pos)
+
         if self.selected_tool == 'axe':
             for tree in self.tree_sprites.sprites():
                 if tree.rect.collidepoint(self.target_pos):
                     tree.damage()
 
         if self.selected_tool == 'water':
-            pass
+            self.soil_layer.water(self.target_pos)
 
     # 获得目标点
     def get_target_pos(self):

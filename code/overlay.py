@@ -14,10 +14,15 @@ class Overlay:
 
         # 导入覆盖层（图标）的图片路径
         overlay_path = '../graphics/overlay/'
+        # 建立工具图像字典
         self.tools_surf = {tool: pygame.image.load(f'{overlay_path}{tool}.png').convert_alpha()
                            for tool in player.tools}
+        # 建立种子图像字典
         self.seeds_surf = {seed: pygame.image.load(f'{overlay_path}{seed}.png').convert_alpha()
                            for seed in player.seeds}
+        # 生成小地图
+        # self.map_surf_old = pygame.image.load('../graphics/world/ground.png').convert_alpha()
+        # self.map_surf = pygame.transform.scale(self.map_surf_old, (200, 200))
 
     def display(self):
         # 显示工具图标
@@ -29,3 +34,8 @@ class Overlay:
         seed_surf = self.seeds_surf[self.player.selected_seed]
         seed_rect = seed_surf.get_rect(midbottom=OVERLAY_POSITIONS['seed'])
         self.display_surface.blit(seed_surf, seed_rect)
+
+        # 显示地图
+        # map_surf = self.map_surf
+        # map_rect = map_surf.get_rect(midbottom=OVERLAY_POSITIONS['map'])
+        # self.display_surface.blit(map_surf, map_rect)
