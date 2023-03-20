@@ -19,6 +19,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__(group)
         # 主要有各种功能素材，属性的初始化
         # 导入动画素材包
+
         self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
                            'right_idle': [], 'left_idle': [], 'up_idle': [], 'down_idle': [],
                            'right_hoe': [], 'left_hoe': [], 'up_hoe': [], 'down_hoe': [],
@@ -42,6 +43,8 @@ class Player(pygame.sprite.Sprite):
         # 方向属性：使用一个2维向量保存移动方向
         self.direction = pygame.math.Vector2()
         # 位置属性
+        self.pre_x = None
+        self.pre_y = None
         self.pos = pygame.math.Vector2(self.rect.center)
         # 速度属性
         self.speed = 200
@@ -257,6 +260,7 @@ class Player(pygame.sprite.Sprite):
             self.direction = self.direction.normalize()
 
         # 水平移动
+        self.pre_x = self.pos.x
         self.pos.x += self.direction.x * self.speed * dt
         # 这里四舍五入可以减少一些偶然的bug（？）
         self.hitbox.centerx = round(self.pos.x)
@@ -264,10 +268,17 @@ class Player(pygame.sprite.Sprite):
         self.collision('horizontal')
 
         # 垂直移动
+        self.pre_y = self.pos.y
         self.pos.y += self.direction.y * self.speed * dt
         self.hitbox.centery = round(self.pos.y)
         self.rect.centery = self.hitbox.centery
         self.collision('vertical')
+
+    def get_move_x(self):
+        return self.pos.x - self.pre_x
+
+    def get_move_y(self):
+        return self.pos.y - self.pre_y
 
     # 重写Sprite中的update方法 tip:所有每一帧需要刷新的动作都放在这里，每一帧跑一次
     def update(self, dt):

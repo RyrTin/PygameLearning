@@ -5,6 +5,7 @@ import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
 from support import *
+from random import choice
 
 
 class SoilTile(pygame.sprite.Sprite):
@@ -16,17 +17,29 @@ class SoilTile(pygame.sprite.Sprite):
     # 暂时不需要update方法
 
 
+class WaterTile(pygame.sprite.Sprite):
+    def __init__(self, pos, surf, groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_rect(topleft=pos)
+        self.z = LAYERS['soil water']
+
+
 class SoilLayer:
     def __init__(self, all_sprites):
 
         # 创建精灵组
         # 初始化碰撞盒
         self.hit_rects = None
+
         self.all_sprites = all_sprites
+        # 初始化土壤精灵组和水精灵组
         self.soil_sprites = pygame.sprite.Group()
+        self.water_sprites = pygame.sprite.Group()
 
         # 各种各样的土壤图片
         self.soil_surfs = import_folder_dict('../graphics/soil')
+        self.water_surfs = import_folder('../graphics/soil_water')
         # print(self.soil_surfs)
 
         # 初始化坐标
@@ -75,8 +88,29 @@ class SoilLayer:
 
     def water(self, target_pos):
         for soil_sprite in self.soil_sprites.sprites():
+            # 碰撞检测
             if soil_sprite.rect.collidepoint(target_pos):
-                print('soil_tile watered')
+                x = soil_sprite.rect.x // TILE_SIZE
+                y = soil_sprite.rect.y // TILE_SIZE
+                # 添加土地状态信息
+                self.grid[y][x].append('W')
+                # 这个Print验证了一件事就是x和w会无限的被添加进去
+                # print(self.grid[y][x])
+                pos = soil_sprite.rect.topleft
+                surf = choice(self.water_surfs)
+                # 生成水精灵
+                WaterTile(pos, surf, [self.all_sprites, self.water_sprites])
+
+    def remove_water(self):
+        # 在一个组里被删掉的精灵也会在其他组被删掉（其实是同一个）
+        for sprite in self.water_sprites.sprites():
+            sprite.kill()
+
+        for row in self.grid:
+            for cell in row:
+                if 'W' in cell:
+                    # 这里全部移除掉了 不管有几个'w' 所以之前可以无限添加不是很严重的bug（谁没事一直浇水啊）
+                    cell.remove('W')
 
     def create_soil_tiles(self):
         # 这步不知道要干啥，为什么要清空？ 实测注释掉也没什么影响（可能是不清空会叠好几层，到时候删除土地不方便）

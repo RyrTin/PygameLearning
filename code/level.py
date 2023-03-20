@@ -121,6 +121,9 @@ class Level:
     # 重置
     def reset(self):
 
+        # 重置土壤
+        self.soil_layer.remove_water()
+
         # 重置苹果树
         for tree in self.tree_sprites.sprites():
             for apple in tree.apple_sprites.sprites():
@@ -141,6 +144,8 @@ class Level:
 
         # 以player为中心绘制所有的sprite，不会画出碰撞盒，这里的参数就是Camera中心的精灵
         self.all_sprites.custom_draw(self.player)
+
+        # 更新覆盖层，最后绘制所以一定在最上面
 
         self.overlay.display()
         # print(self.player.item_inventory)
