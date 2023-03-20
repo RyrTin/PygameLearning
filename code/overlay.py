@@ -21,8 +21,11 @@ class Overlay:
         self.seeds_surf = {seed: pygame.image.load(f'{overlay_path}{seed}.png').convert_alpha()
                            for seed in player.seeds}
         # 生成小地图
-        # self.map_surf_old = pygame.image.load('../graphics/world/ground.png').convert_alpha()
-        # self.map_surf = pygame.transform.scale(self.map_surf_old, (200, 200))
+        self.map_surf_pre = pygame.image.load('../graphics/world/map.png').convert_alpha()
+        self.map_surf = pygame.transform.scale(self.map_surf_old, (200, 200))
+
+        # 生成人物头像
+        self.figure_surf_pre = pygame.image.load('../graphics/objects/')
 
     def display(self):
         # 显示工具图标
@@ -36,6 +39,7 @@ class Overlay:
         self.display_surface.blit(seed_surf, seed_rect)
 
         # 显示地图
-        # map_surf = self.map_surf
-        # map_rect = map_surf.get_rect(midbottom=OVERLAY_POSITIONS['map'])
-        # self.display_surface.blit(map_surf, map_rect)
+        map_surf = self.map_surf
+        map_rect = map_surf.get_rect(midbottom=OVERLAY_POSITIONS['map'])
+        self.display_surface.blit(map_surf, map_rect)
+        pygame.draw.rect(self.display_surface, 'black', map_rect, 5)
