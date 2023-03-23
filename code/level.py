@@ -33,7 +33,7 @@ class Level:
         # 创建交互精灵组
         self.interaction_sprites = pygame.sprite.Group()
         # 土壤层
-        self.soil_layer = SoilLayer(self.all_sprites)
+        self.soil_layer = SoilLayer(self.all_sprites, self.collision_sprite)
         # 实例化各种精灵，精灵是整个程序的核心部分,且必须放在所拥有的实参类被创造之后
         self.setup()
         # 需要player参数的初始化放在最后
@@ -48,7 +48,7 @@ class Level:
         self.raining = False
         self.soil_layer.raining = self.raining
 
-    # 实例化精灵和碰撞盒并在游戏运行时持久保存
+    # 实例化游戏开始时就有的精灵和碰撞盒
     def setup(self):
         # 把各种图层信息保存在方格里的地图
         tmx_data = load_pygame('../data/map.tmx')
@@ -128,6 +128,8 @@ class Level:
 
     # 重置
     def reset(self):
+        # 更新植物
+        self.soil_layer.update_plants()
 
         # 重置土壤
         self.soil_layer.remove_water()

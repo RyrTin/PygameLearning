@@ -27,17 +27,70 @@ class WaterTile(pygame.sprite.Sprite):
         self.z = LAYERS['soil water']
 
 
+# 植物精灵
+class Plant(pygame.sprite.Sprite):
+    def __init__(self, plant_type, groups, soil, check_watered):
+        super().__init__(groups)
+        # 初始化
+
+        self.plant_type = plant_type
+        # 加载贴图
+        self.frames = import_folder(f'../graphics/fruit/{plant_type}')
+        self.soil = soil
+        # 灌溉状态
+        self.check_watered = check_watered
+
+        # 植物生长属性
+        self.age = 0
+        self.max_age = len(self.frames) - 1
+        self.grow_speed = GROW_SPEED[plant_type]
+        self.harvestable = False
+
+        # 精灵初始化
+        # 生长状态与图片对应
+        self.image = self.frames[self.age]
+        # 纵向偏移
+        self.y_offset = -16 if plant_type == 'corn' else -8
+        # 获得种下去的那块土壤的位置信息，加上纵向偏移就是植物的位置
+        self.rect = self.image.get_rect(midbottom=soil.rect.midbottom + pygame.math.Vector2(0, self.y_offset))
+        self.z = LAYERS['ground plant']
+
+    def grow(self):
+        if self.check_watered(self.rect.center):
+            # 生长
+            self.age += self.grow_speed
+
+            # 长大后拥有碰撞体积并提高图层优先级
+            if int(self.age) > 0:
+                self.z = LAYERS['main']
+                # 碰撞盒只要有就会撞，所以不在init内定义
+                self.hitbox = self.rect.copy().inflate(-26, -self.rect.height * 0.4)
+                # 优化碰撞表现，调整碰撞盒体积
+                self.hitbox.centery -= 20
+
+            # 限制生长
+            if self.age >= self.max_age:
+                self.age = self.max_age
+                self.harvestable = True
+
+            self.image = self.frames[int(self.age)]
+            self.rect = self.image.get_rect(midbottom=self.soil.rect.midbottom + pygame.math.Vector2(0, self.y_offset))
+
+
+# 土壤类
 class SoilLayer:
-    def __init__(self, all_sprites):
+    def __init__(self, all_sprites, collision_sprites):
 
         # 创建精灵组
         # 初始化碰撞盒
         self.hit_rects = None
 
         self.all_sprites = all_sprites
-        # 初始化土壤精灵组和水精灵组
+        self.collision_sprites = collision_sprites
+        # 初始化土壤精灵组 水精灵组 植物精灵组
         self.soil_sprites = pygame.sprite.Group()
         self.water_sprites = pygame.sprite.Group()
+        self.plant_sprites = pygame.sprite.Group()
 
         # 各种各样的土壤图片
         self.soil_surfs = import_folder_dict('../graphics/soil')
@@ -128,6 +181,31 @@ class SoilLayer:
                 if 'W' in cell:
                     # 这里全部移除掉了 不管有几个'w' 所以之前可以无限添加不是很严重的bug（谁没事一直浇水啊）
                     cell.remove('W')
+
+    def check_water(self, pos):
+        # 检查是否被浇水
+        x = pos[0] // TILE_SIZE
+        y = pos[1] // TILE_SIZE
+        cell = self.grid[y][x]
+        is_watered = 'W' in cell
+        return is_watered
+
+    def plant_seed(self, target_pos, seed):
+        # 检查碰撞
+        for soil_sprite in self.soil_sprites.sprites():
+            if soil_sprite.rect.collidepoint(target_pos):
+                # 获得方块位置（整数信息）
+                x = soil_sprite.rect.x // TILE_SIZE
+                y = soil_sprite.rect.y // TILE_SIZE
+                # 检查并添加种植信息
+                if 'P' not in self.grid[y][x]:
+                    self.grid[y][x].append('P')
+                    # 触发种植
+                    Plant(seed, [self.all_sprites, self.plant_sprites, self.collision_sprites], soil_sprite, self.check_water)
+
+    def update_plants(self):
+        for plant in self.plant_sprites.sprites():
+            plant.grow()
 
     def create_soil_tiles(self):
         # 这步不知道要干啥，为什么要清空？ 实测注释掉也没什么影响（可能是不清空会叠好几层，到时候删除土地不方便）

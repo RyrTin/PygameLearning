@@ -50,7 +50,8 @@ class Player(pygame.sprite.Sprite):
         self.speed = 200
 
         # 碰撞检测！（狂喜） 拷贝一个精灵rect，适当缩小边缘，并且需要跟随精灵，这一点将在move方法里体现
-        self.hitbox = self.rect.copy().inflate((-126, -70))
+        # 精细化碰撞盒，修改人物大小
+        self.hitbox = self.rect.copy().inflate((-126, -80))
         self.collision_sprites = collision_sprites
 
         # 计时器(这里用词典形式保存实例化的计时器）
@@ -120,7 +121,7 @@ class Player(pygame.sprite.Sprite):
 
     # 使用工具
     def use_seed(self):
-        pass
+        self.soil_layer.plant_seed(self.target_pos, self.selected_seed)
 
     # 导入素材
     def import_assets(self):
@@ -286,7 +287,7 @@ class Player(pygame.sprite.Sprite):
     def get_move_y(self):
         return self.pos.y - self.pre_y
 
-    # 重写Sprite中的update方法 tip:所有每一帧需要刷新的动作都放在这里，每一帧跑一次
+    # 重写Sprite中的update方法 tip:所有每一帧需要刷新的动作都放在这里，每一帧跑一次，不写就没有
     def update(self, dt):
         self.input()
         self.get_status()
