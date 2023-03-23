@@ -8,6 +8,7 @@ from support import *
 from random import choice
 
 
+# 土壤精灵
 class SoilTile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
         super().__init__(groups)
@@ -17,6 +18,7 @@ class SoilTile(pygame.sprite.Sprite):
     # 暂时不需要update方法
 
 
+# 浇水的土壤精灵
 class WaterTile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
         super().__init__(groups)
@@ -81,15 +83,19 @@ class SoilLayer:
                 # 确定这次碰撞在哪个格子里
                 x = rect.x // TILE_SIZE
                 y = rect.y // TILE_SIZE
-
+                # 如果可以种植，就添加一个'X'代表被开垦，并且生成土壤贴图
                 if 'F' in self.grid[y][x]:
                     self.grid[y][x].append('X')
                     self.create_soil_tiles()
+                    # 同时检测，如果下雨了，自动浇水
+                    if self.raining:
+                        self.water_all()
 
     def water(self, target_pos):
         for soil_sprite in self.soil_sprites.sprites():
             # 碰撞检测
             if soil_sprite.rect.collidepoint(target_pos):
+                # 整除可以获得对应的行列信息
                 x = soil_sprite.rect.x // TILE_SIZE
                 y = soil_sprite.rect.y // TILE_SIZE
                 # 添加土地状态信息
@@ -100,6 +106,17 @@ class SoilLayer:
                 surf = choice(self.water_surfs)
                 # 生成水精灵
                 WaterTile(pos, surf, [self.all_sprites, self.water_sprites])
+
+    def water_all(self):
+        for index_row, row in enumerate(self.grid):
+            for index_col, cell in enumerate(row):
+                # 已经开垦了但是没浇水
+                if 'X' in cell and 'W' not in cell:
+                    cell.append('W')
+                    # 把行列信息转成位置信息
+                    x = index_col * TILE_SIZE
+                    y = index_row * TILE_SIZE
+                    WaterTile((x, y), choice(self.water_surfs), [self.all_sprites, self.water_sprites])
 
     def remove_water(self):
         # 在一个组里被删掉的精灵也会在其他组被删掉（其实是同一个）

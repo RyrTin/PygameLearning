@@ -10,6 +10,7 @@ from support import *
 from transition import Transition
 from soil import SoilLayer
 from sky import Rain
+from random import randint
 
 
 # 负责绘制所有精灵的类
@@ -43,7 +44,9 @@ class Level:
 
         # 天空
         self.rain = Rain(self.all_sprites)
-        self.raining = True
+        # 默认不下雨
+        self.raining = False
+        self.soil_layer.raining = self.raining
 
     # 实例化精灵和碰撞盒并在游戏运行时持久保存
     def setup(self):
@@ -128,7 +131,11 @@ class Level:
 
         # 重置土壤
         self.soil_layer.remove_water()
-
+        # 随机下雨
+        self.raining = randint(0, 10) > 3  # 这里会返回一个True or False
+        self.soil_layer.raining = self.raining
+        if self.raining:
+            self.soil_layer.water_all()
         # 重置苹果树
         for tree in self.tree_sprites.sprites():
             for apple in tree.apple_sprites.sprites():
@@ -151,7 +158,8 @@ class Level:
         self.all_sprites.custom_draw(self.player)
 
         # 下雨
-        self.rain.update()
+        if self.raining:
+            self.rain.update()
 
         # 更新覆盖层，最后绘制所以一定在最上面
         self.overlay.display()

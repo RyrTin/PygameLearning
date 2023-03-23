@@ -97,15 +97,21 @@ class Player(pygame.sprite.Sprite):
     # 通过碰撞检测响应动作
     def use_tool(self):
         # print('tool use')
+        # 使用锄头
         if self.selected_tool == 'hoe':
+            # 土壤层受击判定
             self.soil_layer.get_hit(self.target_pos)
 
+        # 使用斧头
         if self.selected_tool == 'axe':
+            # 树木受击判定
             for tree in self.tree_sprites.sprites():
                 if tree.rect.collidepoint(self.target_pos):
                     tree.damage()
 
+        # 使用水壶
         if self.selected_tool == 'water':
+            # 浇水区受击判定
             self.soil_layer.water(self.target_pos)
 
     # 获得目标点
