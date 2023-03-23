@@ -9,6 +9,7 @@ from pytmx.util_pygame import load_pygame
 from support import *
 from transition import Transition
 from soil import SoilLayer
+from sky import Rain
 
 
 # 负责绘制所有精灵的类
@@ -40,7 +41,11 @@ class Level:
         # 过渡界面
         self.transition = Transition(self.reset, self.player)
 
-    # 创建精灵和碰撞盒并在游戏运行时持久保存
+        # 天空
+        self.rain = Rain(self.all_sprites)
+        self.raining = True
+
+    # 实例化精灵和碰撞盒并在游戏运行时持久保存
     def setup(self):
         # 把各种图层信息保存在方格里的地图
         tmx_data = load_pygame('../data/map.tmx')
@@ -130,7 +135,7 @@ class Level:
                 apple.kill()
             tree.create_fruit()
 
-    # 游戏运行
+    # 游戏运行（主要就是跑一边各个精灵的update）
     def run(self, dt):
         # dt保证了每个sprite刷新一次的时间相等，从而控制时间同步
         # 填充背景（显示区域） (覆盖上一个大循环生成的所有画面，可以保证显示区域外都是黑屏，不然都是拖影，之前绘制的画面永远都在）
@@ -145,8 +150,10 @@ class Level:
         # 以player为中心绘制所有的sprite，不会画出碰撞盒，这里的参数就是Camera中心的精灵
         self.all_sprites.custom_draw(self.player)
 
-        # 更新覆盖层，最后绘制所以一定在最上面
+        # 下雨
+        self.rain.update()
 
+        # 更新覆盖层，最后绘制所以一定在最上面
         self.overlay.display()
         # print(self.player.item_inventory)
 
@@ -155,6 +162,7 @@ class Level:
             self.transition.play()
 
 
+# 重写一个精灵组（主要是为了添加一个模拟相机的绘制功能）
 class CameraGroup(pygame.sprite.Group):
     def __init__(self):
         super().__init__()

@@ -27,8 +27,8 @@ class Overlay:
         # 生成人物头像
         self.figure_surf_pre = pygame.image.load('../graphics/objects/figure.png').convert_alpha()
         self.figure_surf = pygame.transform.scale(self.figure_surf_pre, (40, 30))
-        self.figure_x = 100
-        self.figure_y = SCREEN_HEIGHT - 570
+        self.figure_x = 120
+        self.figure_y = SCREEN_HEIGHT - 550
 
     def display(self):
         # 显示工具图标
