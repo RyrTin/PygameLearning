@@ -15,7 +15,6 @@ class SoilTile(pygame.sprite.Sprite):
         self.image = surf
         self.rect = self.image.get_rect(topleft=pos)
         self.z = LAYERS['soil']
-    # 暂时不需要update方法
 
 
 # 浇水的土壤精灵
@@ -104,6 +103,13 @@ class SoilLayer:
         # 生成碰撞盒
         self.create_hit_rects()
 
+        # 声音(音效素材依托答辩)
+        self.hoe_sound = pygame.mixer.Sound('../audio/hoe.wav')
+        self.hoe_sound.set_volume(0.1)
+
+        self.plant_sound = pygame.mixer.Sound('../audio/plant.wav')
+        self.plant_sound.set_volume(0.1)
+
     def create_soil_grid(self):
         ground = pygame.image.load('../graphics/world/ground.png')
         # tip:  // 的作用是整数除法
@@ -133,6 +139,8 @@ class SoilLayer:
     def get_hit(self, point):
         for rect in self.hit_rects:
             if rect.collidepoint(point):
+                self.hoe_sound.play()
+
                 # 确定这次碰撞在哪个格子里
                 x = rect.x // TILE_SIZE
                 y = rect.y // TILE_SIZE
@@ -194,6 +202,8 @@ class SoilLayer:
         # 检查碰撞
         for soil_sprite in self.soil_sprites.sprites():
             if soil_sprite.rect.collidepoint(target_pos):
+                self.plant_sound.play()
+
                 # 获得方块位置（整数信息）
                 x = soil_sprite.rect.x // TILE_SIZE
                 y = soil_sprite.rect.y // TILE_SIZE

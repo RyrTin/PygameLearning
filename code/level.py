@@ -11,6 +11,7 @@ from transition import Transition
 from soil import SoilLayer
 from sky import Rain, Sky
 from random import randint
+from menu import Menu
 
 
 # 负责绘制所有精灵的类
@@ -50,7 +51,19 @@ class Level:
         self.sky = Sky()
 
         # 商店
+        self.menu = Menu(self.player, self.toggle_shop)
         self.shop_active = False
+
+        # 音乐
+        # 说实话有点难听- -，到时候换个素材包
+        self.success = pygame.mixer.Sound('../audio/success.wav')
+        self.success.set_volume(0.3)
+        # self.music_1 = pygame.mixer.Sound('../audio/music.mp3')
+        # self.music_1.set_volume(0.3)
+        # self.music_1.play(loops=-1)
+        self.music_2 = pygame.mixer.Sound('../audio/BGM.mp3')
+        self.music_2.set_volume(0.4)
+        self.music_2.play(loops=-1)
 
     # 实例化游戏开始时就有的精灵和碰撞盒
     def setup(self):
@@ -133,6 +146,7 @@ class Level:
     def player_add(self, item):
 
         self.player.item_inventory[item] += 1
+        self.success.play()
 
     # 打开商店
     def toggle_shop(self):
@@ -147,7 +161,7 @@ class Level:
         # 重置土壤
         self.soil_layer.remove_water()
         # 随机下雨（调整下雨概率）
-        self.raining = randint(0, 10) > 5  # 这里会返回一个True or False
+        self.raining = randint(0, 10) > 7  # 这里会返回一个True or False
         self.soil_layer.raining = self.raining
         if self.raining:
             self.soil_layer.water_all()
@@ -176,37 +190,43 @@ class Level:
 
     # 游戏运行（主要就是跑一边各个精灵的update）
     def run(self, dt):
+        # 绘图逻辑
         # dt保证了每个sprite刷新一次的时间相等，从而控制时间同步
         # 填充背景（显示区域） (覆盖上一个大循环生成的所有画面，可以保证显示区域外都是黑屏，不然都是拖影，之前绘制的画面永远都在）
         self.display_surface.fill('black')
-        # 绘制精灵组(all_sprite)到显示区域（surface),所有具有图形的精灵都在这个组里，所以跑update()是没有问题的
-        # self.all_sprites.draw(self.display_surface)
-
-        # 刷新精灵组(文档找不到详细说明，个人理解：直接按顺序调用group中每个实例化的sprite中的update()）
-        # 这里的update方法几乎都是重写的，一般都是根据动画帧找到下一帧来改变image属性，真正意义上的刷新画面是上面的custom_draw方法
-        self.all_sprites.update(dt)
-        # 植物收获碰撞判定
-        self.plant_collision()
-
-        # 以player为中心绘制所有的sprite，不会画出碰撞盒，这里的参数就是Camera中心的精灵
+        # 绘制这一帧的所有精灵，所以应当发生在所有精灵完成动作以后或者以前，具体看图层的遮盖关系
+        # Q：这里为什么先绘制再更新？
+        # A: 因为一些覆盖层的逻辑必须发生在精灵绘制以后（要么把覆盖层做成精灵，个人觉得这样更好）
+        # 以player为中心绘制所有的sprite，不会画出碰撞盒，这里的参数就是Camera中心的精灵，blit还未更新画面，需要等main中的update
         self.all_sprites.custom_draw(self.player)
 
-        # 下雨
-        if self.raining:
+        # 更新逻辑
+        # 绘制精灵组(all_sprite)到显示区域（surface),所有具有图形的精灵都在这个组里，所以跑update()是没有问题的
+        # self.all_sprites.draw(self.display_surface)
+        # 刷新精灵组(文档找不到详细说明，个人理解：直接按顺序调用group中每个实例化的sprite中的update())
+        # 这里的update方法几乎都是重写的，一般都是根据动画帧找到下一帧来改变image属性，真正意义上的刷新画面是上面的custom_draw方法
+        # 开商店暂停游戏(防止键盘输入)
+        if self.shop_active:
+            # 菜单是单独的图层，必须后于精灵绘制（除非做成精灵并设置优先级）
+            self.menu.update()
+        else:
+            self.all_sprites.update(dt)
+            # 植物收获碰撞判定
+            self.plant_collision()
+
+        # 天气逻辑
+        # 开商店下雨暂停
+        if self.raining and not self.shop_active:
             self.rain.update()
 
+        # 覆盖层逻辑
+        self.overlay.display()
         # 时间
         self.sky.display(dt)
-
-        # 更新覆盖层，最后绘制所以一定在最上面
-        self.overlay.display()
-        # print(self.player.item_inventory)
-
+        # 最高优先级层，并且不受玩家影响，最后绘制所以一定在最上面
         # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
         if self.player.sleep:
             self.transition.play()
-
-        print(self.shop_active)
 
 
 # 重写一个精灵组（主要是为了添加一个模拟相机的绘制功能）

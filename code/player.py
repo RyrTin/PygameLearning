@@ -86,10 +86,10 @@ class Player(pygame.sprite.Sprite):
 
         # 玩家资产(词典)
         self.item_inventory = {
-            'wood': 0,
-            'apple': 0,
-            'corn': 0,
-            'tomato': 0
+            'wood': 20,
+            'apple': 20,
+            'corn': 20,
+            'tomato': 20
         }
         self.seed_inventory = {
             'corn': 5,
@@ -102,6 +102,10 @@ class Player(pygame.sprite.Sprite):
 
         # 商店
         self.toggle_shop = toggle_shop
+
+        # 声音
+        self.watering = pygame.mixer.Sound('../audio/water.mp3')
+        self.watering.set_volume(0.2)
 
     # 通过碰撞检测响应动作
     def use_tool(self):
@@ -122,6 +126,7 @@ class Player(pygame.sprite.Sprite):
         if self.selected_tool == 'water':
             # 浇水区受击判定
             self.soil_layer.water(self.target_pos)
+            self.watering.play()
 
     # 获得目标点
     def get_target_pos(self):
@@ -215,7 +220,6 @@ class Player(pygame.sprite.Sprite):
 
             # 交互区
             if keys[pygame.K_RETURN]:
-
                 collided_interaction_sprite = pygame.sprite.spritecollide(self, self.interaction, False)
                 if collided_interaction_sprite:
                     # 触发交互就不能动了
