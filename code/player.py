@@ -135,8 +135,8 @@ class Player(pygame.sprite.Sprite):
     # 使用工具
     def use_seed(self):
         if self.seed_inventory[self.selected_seed] > 0:
-            self.soil_layer.plant_seed(self.target_pos, self.selected_seed)
-            self.seed_inventory[self.selected_seed] -= 1
+            if self.soil_layer.plant_seed(self.target_pos, self.selected_seed):
+                self.seed_inventory[self.selected_seed] -= 1
 
     # 导入素材
     def import_assets(self):

@@ -92,7 +92,7 @@ class Menu:
 
                 # 获得物品
                 current_item = self.options[self.index]
-                print(current_item)
+                # print(current_item)
 
                 # 出售
                 if self.index <= self.sell_border:

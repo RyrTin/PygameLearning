@@ -200,9 +200,9 @@ class SoilLayer:
 
     def plant_seed(self, target_pos, seed):
         # 检查碰撞
+        has_planed = False
         for soil_sprite in self.soil_sprites.sprites():
             if soil_sprite.rect.collidepoint(target_pos):
-                self.plant_sound.play()
 
                 # 获得方块位置（整数信息）
                 x = soil_sprite.rect.x // TILE_SIZE
@@ -210,8 +210,14 @@ class SoilLayer:
                 # 检查并添加种植信息
                 if 'P' not in self.grid[y][x]:
                     self.grid[y][x].append('P')
+                    self.plant_sound.play()
                     # 触发种植
-                    Plant(seed, [self.all_sprites, self.plant_sprites, self.collision_sprites], soil_sprite, self.check_water)
+                    Plant(seed,
+                          [self.all_sprites, self.plant_sprites, self.collision_sprites],
+                          soil_sprite,
+                          self.check_water)
+                    has_planed = True
+        return has_planed
 
     def update_plants(self):
         for plant in self.plant_sprites.sprites():
