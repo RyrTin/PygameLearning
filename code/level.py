@@ -9,7 +9,7 @@ from pytmx.util_pygame import load_pygame
 from support import *
 from transition import Transition
 from soil import SoilLayer
-from sky import Rain
+from sky import Rain, Sky
 from random import randint
 
 
@@ -47,6 +47,7 @@ class Level:
         # 默认不下雨
         self.raining = False
         self.soil_layer.raining = self.raining
+        self.sky = Sky()
 
     # 实例化游戏开始时就有的精灵和碰撞盒
     def setup(self):
@@ -133,8 +134,8 @@ class Level:
 
         # 重置土壤
         self.soil_layer.remove_water()
-        # 随机下雨
-        self.raining = randint(0, 10) > 3  # 这里会返回一个True or False
+        # 随机下雨（调整下雨概率）
+        self.raining = randint(0, 10) > 5  # 这里会返回一个True or False
         self.soil_layer.raining = self.raining
         if self.raining:
             self.soil_layer.water_all()
@@ -143,6 +144,23 @@ class Level:
             for apple in tree.apple_sprites.sprites():
                 apple.kill()
             tree.create_fruit()
+
+        # 重置时间
+        self.sky.start_color = [255, 255, 255]
+
+    # 植物收获碰撞(这里为啥写在Level里？猜测因为plant_sprites在level里并没有创建，无法传递到player里面)
+    def plant_collision(self):
+        if self.soil_layer.plant_sprites:
+            for plant in self.soil_layer.plant_sprites.sprites():
+                if plant.harvestable and plant.rect.colliderect(self.player.hitbox):
+                    # 添加到库存
+                    self.player_add(plant.plant_type)
+                    # 生成粒子效果
+                    Particle(plant.rect.topleft, plant.image, self.all_sprites, z=LAYERS['main'])
+                    # 清除植物
+                    plant.kill()
+                    # 从网格信息中删除
+                    self.soil_layer.grid[plant.rect.centery // TILE_SIZE][plant.rect.centerx // TILE_SIZE].remove('P')
 
     # 游戏运行（主要就是跑一边各个精灵的update）
     def run(self, dt):
@@ -155,6 +173,8 @@ class Level:
         # 刷新精灵组(文档找不到详细说明，个人理解：直接按顺序调用group中每个实例化的sprite中的update()）
         # 这里的update方法几乎都是重写的，一般都是根据动画帧找到下一帧来改变image属性，真正意义上的刷新画面是上面的custom_draw方法
         self.all_sprites.update(dt)
+        # 植物收获碰撞判定
+        self.plant_collision()
 
         # 以player为中心绘制所有的sprite，不会画出碰撞盒，这里的参数就是Camera中心的精灵
         self.all_sprites.custom_draw(self.player)
@@ -162,6 +182,9 @@ class Level:
         # 下雨
         if self.raining:
             self.rain.update()
+
+        # 时间
+        self.sky.display(dt)
 
         # 更新覆盖层，最后绘制所以一定在最上面
         self.overlay.display()

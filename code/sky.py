@@ -5,6 +5,26 @@ from sprite import Generic
 from random import randint, choice
 
 
+class Sky:
+    def __init__(self):
+        # 获取显示区域
+        self.display_surface = pygame.display.get_surface()
+        # 创建显示图像 Surface((width, height), flags=0, depth=0, masks=None) -> Surface 颜色默认全黑
+        self.full_surf = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.start_color = [255, 255, 255]
+        # 用个元组确保不能变
+        self.end_color = (38, 101, 189)
+
+    def display(self, dt):
+        # 迭代开始颜色的三原色，直到达到结束颜色
+        for index, value in enumerate(self.end_color):
+            if self.start_color[index] > value:
+                self.start_color[index] -= 2 * dt
+
+        self.full_surf.fill(self.start_color)
+        self.display_surface.blit(self.full_surf, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
+
+
 class Drop(Generic):
     # 这里参考particle精灵的方法
     def __init__(self, surf, pos, moving, groups, z):

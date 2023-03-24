@@ -63,7 +63,7 @@ class Plant(pygame.sprite.Sprite):
             # 长大后拥有碰撞体积并提高图层优先级
             if int(self.age) > 0:
                 self.z = LAYERS['main']
-                # 碰撞盒只要有就会撞，所以不在init内定义
+                # 碰撞盒只要有就会撞，所以不在init内定义，尽管这不符合规范
                 self.hitbox = self.rect.copy().inflate(-26, -self.rect.height * 0.4)
                 # 优化碰撞表现，调整碰撞盒体积
                 self.hitbox.centery -= 20
