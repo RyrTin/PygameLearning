@@ -24,6 +24,7 @@ class Transition:
         if self.color <= 0:
             self.speed *= -1
             self.color = 0
+            # 调用重置属性方法
             self.reset()
         if self.color > 255:
             self.color = 255

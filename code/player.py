@@ -1,7 +1,7 @@
 # 作   者：许晨昊
 # 开发日期：14/3/2023
-import pygame
 
+import pygame
 from settings import *
 from support import *
 from timer import Timer
@@ -14,7 +14,7 @@ class Player(pygame.sprite.Sprite):
     # tips:大部分与玩家相关的功能都应该与Player有关，所以实现一个方法后必须考虑放在Player的什么位置
     # 比如这里需要跟树木精灵 tree_sprites 进行交互，所以也应该作为参数传到Player的类中
     # 初始化
-    def __init__(self, pos, group, collision_sprites, tree_sprites, interaction, soil_layer):
+    def __init__(self, pos, group, collision_sprites, tree_sprites, interaction, soil_layer, toggle_shop):
         # 调用父类方法初始化
         super().__init__(group)
         # 主要有各种功能素材，属性的初始化
@@ -84,16 +84,24 @@ class Player(pygame.sprite.Sprite):
         self.interaction = interaction
         self.sleep = False
 
-        # 仓库(词典)
+        # 玩家资产(词典)
         self.item_inventory = {
             'wood': 0,
             'apple': 0,
             'corn': 0,
             'tomato': 0
         }
+        self.seed_inventory = {
+            'corn': 5,
+            'tomato': 5
+        }
+        self.money = 200
 
         # 土壤
         self.soil_layer = soil_layer
+
+        # 商店
+        self.toggle_shop = toggle_shop
 
     # 通过碰撞检测响应动作
     def use_tool(self):
@@ -121,7 +129,9 @@ class Player(pygame.sprite.Sprite):
 
     # 使用工具
     def use_seed(self):
-        self.soil_layer.plant_seed(self.target_pos, self.selected_seed)
+        if self.seed_inventory[self.selected_seed] > 0:
+            self.soil_layer.plant_seed(self.target_pos, self.selected_seed)
+            self.seed_inventory[self.selected_seed] -= 1
 
     # 导入素材
     def import_assets(self):
@@ -211,7 +221,8 @@ class Player(pygame.sprite.Sprite):
                     # 触发交互就不能动了
                     self.direction = pygame.math.Vector2()
                     if collided_interaction_sprite[0].name == 'Trader':
-                        pass
+                        # toggle的意思是切换(这个方法是level里扔进来的)
+                        self.toggle_shop()
                     else:
                         # 强制面朝左
                         self.status = 'left_idle'

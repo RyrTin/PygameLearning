@@ -49,6 +49,9 @@ class Level:
         self.soil_layer.raining = self.raining
         self.sky = Sky()
 
+        # 商店
+        self.shop_active = False
+
     # 实例化游戏开始时就有的精灵和碰撞盒
     def setup(self):
         # 把各种图层信息保存在方格里的地图
@@ -109,9 +112,13 @@ class Level:
                     collision_sprites=self.collision_sprite,
                     tree_sprites=self.tree_sprites,
                     interaction=self.interaction_sprites,
-                    soil_layer=self.soil_layer
+                    soil_layer=self.soil_layer,
+                    toggle_shop=self.toggle_shop
                 )
             if obj.name == 'Bed':
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+
+            if obj.name == 'Trader':
                 Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
 
         # 生成地图
@@ -126,6 +133,11 @@ class Level:
     def player_add(self, item):
 
         self.player.item_inventory[item] += 1
+
+    # 打开商店
+    def toggle_shop(self):
+
+        self.shop_active = not self.shop_active
 
     # 重置
     def reset(self):
@@ -190,9 +202,11 @@ class Level:
         self.overlay.display()
         # print(self.player.item_inventory)
 
-        # 玩家睡觉时调用过渡画面方法
+        # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
         if self.player.sleep:
             self.transition.play()
+
+        print(self.shop_active)
 
 
 # 重写一个精灵组（主要是为了添加一个模拟相机的绘制功能）
