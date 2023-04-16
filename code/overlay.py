@@ -62,6 +62,7 @@ class Overlay:
         # 显示时间
         # 将秒转化为时分秒
         self.time = strftime("%H:%M:%S", gmtime(420 + math.floor(self.player.timers['time'].pass_time() / 1000)))
+        print(math.floor(self.player.timers['time'].pass_time() / 1000))
         self.time = self.time.split(':')[1] + ':' + self.time.split(':')[2]
 
         text_surf = self.font.render(f'{self.time}', False, 'Black')

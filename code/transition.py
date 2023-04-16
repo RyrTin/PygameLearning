@@ -20,6 +20,7 @@ class Transition:
         self.speed = -2
 
     def play(self):
+
         # 颜色随着时间变化
         self.color += self.speed
         # 防止颜色超出(0,255)

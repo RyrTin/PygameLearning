@@ -12,6 +12,7 @@ class Timer:
         self.active = False
 
     def pass_time(self):
+        # start_time在deactivate后依然有效，只在下次启动时刷新
         return 2*(pygame.time.get_ticks() - self.start_time)
 
     def activate(self):
@@ -22,7 +23,6 @@ class Timer:
     def deactivate(self):
         # 关闭计时器
         self.active = False
-        self.start_time = 0
 
     def update(self):
         # 获取当前时间

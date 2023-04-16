@@ -224,15 +224,16 @@ class Level:
         # 开商店下雨暂停
         if self.raining and not self.shop_active:
             self.rain.update()
+        # 天色
+        self.sky.display(dt)
 
         # 覆盖层
         self.overlay.display()
-        # 时间
-        self.sky.display(dt)
+
         # 最高优先级层，并且不受玩家影响，最后绘制所以一定在最上面
         # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
         # 所有操作判定在sleep为true时锁死 所以只能看到过渡画面
-        # ps：这里会产生一个时间加速的bug 推测为run的调用次数突然增加导致 也许只能固定帧数解决
+        # ps：这里会产生一个时间加速的bug 推测为run的调用次数突然增加导致 目前无法解决
         if self.player.sleep:
             self.transition.play()
 
