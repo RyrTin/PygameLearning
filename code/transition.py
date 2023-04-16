@@ -20,12 +20,15 @@ class Transition:
         self.speed = -2
 
     def play(self):
+        # 颜色随着时间变化
         self.color += self.speed
+        # 防止颜色超出(0,255)
         if self.color <= 0:
             self.speed *= -1
             self.color = 0
-            # 调用重置属性方法
+            # 重置属性
             self.reset()
+            self.player.timers['time'].activate()
         if self.color > 255:
             self.color = 255
             self.speed *= -1

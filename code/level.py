@@ -12,6 +12,7 @@ from soil import SoilLayer
 from sky import Rain, Sky
 from random import randint
 from menu import Menu
+import time
 
 
 # 负责绘制所有精灵的类
@@ -38,6 +39,7 @@ class Level:
         # 实例化各种精灵，精灵是整个程序的核心部分,且必须放在所拥有的实参类被创造之后
         self.setup()
         # 需要player参数的初始化放在最后
+
         # 创建覆盖层(UI)
         self.overlay = Overlay(self.player)
         # 过渡界面
@@ -53,6 +55,9 @@ class Level:
         # 商店
         self.menu = Menu(self.player, self.toggle_shop)
         self.shop_active = False
+
+        # 启用计时器
+        self.player.timers['time'].activate()
 
         # 音乐
         # 说实话有点难听- -，到时候换个素材包
@@ -112,8 +117,9 @@ class Level:
         # 生成碰撞瓷砖 （tiled 软件生成的地图自带碰撞瓷砖）
         for x, y, sur in tmx_data.get_layer_by_name('Collision').tiles():
             # 不需要可视化，只要用一个空的surf 然后放进碰撞组就可以了
-            Generic((x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE)), self.collision_sprite)
+            Generic((x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE + 32)), self.collision_sprite)
 
+        # 生成玩家
         # 创建并设置精灵(all_sprite实体) (player调用的是sprite父类初始化方法）
         # player重写了sprites父类的方法，实例化以后会在group里添加一个精灵
         # 根据map找到玩家的位置并获得位置参数，然后生成玩家精灵
@@ -219,12 +225,14 @@ class Level:
         if self.raining and not self.shop_active:
             self.rain.update()
 
-        # 覆盖层逻辑
+        # 覆盖层
         self.overlay.display()
         # 时间
         self.sky.display(dt)
         # 最高优先级层，并且不受玩家影响，最后绘制所以一定在最上面
         # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
+        # 所有操作判定在sleep为true时锁死 所以只能看到过渡画面
+        # ps：这里会产生一个时间加速的bug 推测为run的调用次数突然增加导致 也许只能固定帧数解决
         if self.player.sleep:
             self.transition.play()
 

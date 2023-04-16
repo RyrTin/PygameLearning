@@ -3,14 +3,19 @@
 import pygame
 
 from settings import *
+from time import strftime
+from time import gmtime
+import math
 
 
 # 覆盖层类似于UI的功能，并且相对于其他元素，这里的东西都固定在屏幕上
 class Overlay:
     def __init__(self, player):
         # 初始设置 导入player
+        self.time = None
         self.display_surface = pygame.display.get_surface()
         self.player = player
+        self.font = pygame.font.Font('../font/LycheeSoda.ttf', 30)
 
         # 导入覆盖层（图标）的图片路径
         overlay_path = '../graphics/overlay/'
@@ -27,7 +32,7 @@ class Overlay:
         # 生成人物头像
         self.figure_surf_pre = pygame.image.load('../graphics/objects/figure.png').convert_alpha()
         self.figure_surf = pygame.transform.scale(self.figure_surf_pre, (40, 30))
-        self.figure_x = 120
+        self.figure_x = SCREEN_WIDTH - 120
         self.figure_y = SCREEN_HEIGHT - 550
 
     def display(self):
@@ -53,3 +58,12 @@ class Overlay:
         figure_surf = self.figure_surf
         figure_rect = figure_surf.get_rect(midbottom=(self.figure_x, self.figure_y))
         self.display_surface.blit(figure_surf, figure_rect)
+
+        # 显示时间
+        # 将秒转化为时分秒
+        self.time = strftime("%H:%M:%S", gmtime(420 + math.floor(self.player.timers['time'].pass_time() / 1000)))
+        self.time = self.time.split(':')[1] + ':' + self.time.split(':')[2]
+
+        text_surf = self.font.render(f'{self.time}', False, 'Black')
+        text_rect = text_surf.get_rect(midbottom=OVERLAY_POSITIONS['info'])
+        self.display_surface.blit(text_surf, text_rect)

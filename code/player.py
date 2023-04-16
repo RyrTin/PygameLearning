@@ -60,7 +60,8 @@ class Player(pygame.sprite.Sprite):
             'tool use': Timer(350, self.use_tool),
             'tool switch': Timer(200),
             'seed use': Timer(350, self.use_seed),
-            'seed switch': Timer(200)
+            'seed switch': Timer(200),
+            'time': Timer(10000)
         }
         # 初始化目标点
         self.target_pos = None
@@ -244,6 +245,9 @@ class Player(pygame.sprite.Sprite):
         # 使用工具状态
         if self.timers['tool use'].active:
             self.status = self.status.split('_')[0] + '_' + self.selected_tool
+
+        if not self.timers['time'].active:
+            self.sleep = True
 
     # 计时器刷新
     def update_timers(self):

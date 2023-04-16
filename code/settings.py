@@ -12,7 +12,8 @@ TILE_SIZE = 64
 OVERLAY_POSITIONS = {
     'tool': (40, SCREEN_HEIGHT - 15),
     'seed': (70, SCREEN_HEIGHT - 5),
-    'map': (120, SCREEN_HEIGHT - 500)
+    'map': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 500),
+    'info': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 470)
 }
 
 

@@ -11,6 +11,9 @@ class Timer:
         self.start_time = 0
         self.active = False
 
+    def pass_time(self):
+        return 2*(pygame.time.get_ticks() - self.start_time)
+
     def activate(self):
         # 激活计时器
         self.active = True
@@ -30,3 +33,4 @@ class Timer:
                 self.func()
             # 执行方法后立刻关闭计时器
             self.deactivate()
+
