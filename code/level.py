@@ -117,7 +117,9 @@ class Level:
         # 生成碰撞瓷砖 （tiled 软件生成的地图自带碰撞瓷砖）
         for x, y, sur in tmx_data.get_layer_by_name('Collision').tiles():
             # 不需要可视化，只要用一个空的surf 然后放进碰撞组就可以了
-            Generic((x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE + 32)), self.collision_sprite)
+            # Surface方法的参数为（宽，高）
+            Generic((x * TILE_SIZE, y * TILE_SIZE - 24), pygame.Surface((TILE_SIZE, TILE_SIZE + 24)),
+                    self.collision_sprite)
 
         # 生成玩家
         # 创建并设置精灵(all_sprite实体) (player调用的是sprite父类初始化方法）
@@ -224,8 +226,9 @@ class Level:
         # 开商店下雨暂停
         if self.raining and not self.shop_active:
             self.rain.update()
-        # 天色
-        self.sky.display(dt)
+        # 天色在下午开始黯淡
+        if self.player.timers['time'].pass_time()/1000 > 360:
+            self.sky.display(dt)
 
         # 覆盖层
         self.overlay.display()
@@ -233,7 +236,8 @@ class Level:
         # 最高优先级层，并且不受玩家影响，最后绘制所以一定在最上面
         # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
         # 所有操作判定在sleep为true时锁死 所以只能看到过渡画面
-        # ps：这里会产生一个时间加速的bug 推测为run的调用次数突然增加导致 目前无法解决
+        # ？这里会产生一个时间加速的bug
+        # 已通过修改timer解决
         if self.player.sleep:
             self.transition.play()
 

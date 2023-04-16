@@ -13,7 +13,9 @@ OVERLAY_POSITIONS = {
     'tool': (40, SCREEN_HEIGHT - 15),
     'seed': (70, SCREEN_HEIGHT - 5),
     'map': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 500),
-    'info': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 470)
+    'info': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 470),
+    'health': (40, 30),
+    'magic': (40, 60)
 }
 
 

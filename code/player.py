@@ -61,7 +61,7 @@ class Player(pygame.sprite.Sprite):
             'tool switch': Timer(200),
             'seed use': Timer(350, self.use_seed),
             'seed switch': Timer(200),
-            'time': Timer(6000)
+            'time': Timer(420000)
         }
         # 初始化目标点
         self.target_pos = None

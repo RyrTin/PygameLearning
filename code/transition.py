@@ -20,7 +20,8 @@ class Transition:
         self.speed = -2
 
     def play(self):
-
+        # 禁止移动
+        self.player.direction = pygame.math.Vector2()
         # 颜色随着时间变化
         self.color += self.speed
         # 防止颜色超出(0,255)

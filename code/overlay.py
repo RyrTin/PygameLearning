@@ -15,7 +15,8 @@ class Overlay:
         self.time = None
         self.display_surface = pygame.display.get_surface()
         self.player = player
-        self.font = pygame.font.Font('../font/LycheeSoda.ttf', 30)
+        self.font_n = pygame.font.Font('../font/LycheeSoda.ttf', 30)
+        self.font_w = pygame.font.Font('../font/LycheeSoda.ttf', 20)
 
         # 导入覆盖层（图标）的图片路径
         overlay_path = '../graphics/overlay/'
@@ -61,10 +62,24 @@ class Overlay:
 
         # 显示时间
         # 将秒转化为时分秒
-        self.time = strftime("%H:%M:%S", gmtime(420 + math.floor(self.player.timers['time'].pass_time() / 1000)))
-        print(math.floor(self.player.timers['time'].pass_time() / 1000))
+        self.time = strftime("%H:%M:%S", gmtime(480 + math.floor(self.player.timers['time'].pass_time() / 1000)))
         self.time = self.time.split(':')[1] + ':' + self.time.split(':')[2]
 
-        text_surf = self.font.render(f'{self.time}', False, 'Black')
-        text_rect = text_surf.get_rect(midbottom=OVERLAY_POSITIONS['info'])
-        self.display_surface.blit(text_surf, text_rect)
+        time_surf = self.font_n.render(f'{self.time}', False, 'Black')
+        time_rect = time_surf.get_rect(midbottom=OVERLAY_POSITIONS['info'])
+        self.display_surface.blit(time_surf, time_rect)
+
+        # 显示状态
+        # rect的参数为（区域，颜色，（（左，顶），（宽，高）），边框宽度，弧度）
+        pygame.draw.rect(self.display_surface, 'White', (30, 20, 200, 70), 0, 6)
+        pygame.draw.rect(self.display_surface, 'Pink', (70, 30, 140, 20), 0, 6)
+        pygame.draw.rect(self.display_surface, 'Blue', (70, 60, 140, 20), 0, 6)
+        pygame.draw.rect(self.display_surface, 'Black', (30, 20, 200, 70), 2, 6)
+        pygame.draw.rect(self.display_surface, 'Black', (70, 30, 140, 20), 2, 6)
+        pygame.draw.rect(self.display_surface, 'Black', (70, 60, 140, 20), 2, 6)
+        hp_surf = self.font_w.render(f'HP', False, 'Black')
+        hp_rect = hp_surf.get_rect(topleft=OVERLAY_POSITIONS['health'])
+        self.display_surface.blit(hp_surf, hp_rect)
+        mp_surf = self.font_w.render(f'MP', False, 'Black')
+        mp_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['magic'])
+        self.display_surface.blit(mp_surf, mp_rect)
