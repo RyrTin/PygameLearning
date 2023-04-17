@@ -18,7 +18,7 @@ OVERLAY_POSITIONS = {
     'magic': (40, 60)
 }
 
-
+# 工具位移
 PLAYER_TOOL_OFFSET = {
     'left': Vector2(-50, 40),
     'right': Vector2(50, 40),
@@ -26,6 +26,7 @@ PLAYER_TOOL_OFFSET = {
     'down': Vector2(0, 50)
 }
 
+# 图层优先级
 LAYERS = {
     'water': 0,
     'ground': 1,
@@ -40,23 +41,34 @@ LAYERS = {
     'rain drops': 10
 }
 
+# 苹果刷新位置
 APPLE_POS = {
     'Small': [(18, 17), (30, 37), (12, 50), (30, 45), (20, 30), (30, 10)],
     'Large': [(30, 24), (60, 65), (50, 50), (16, 40), (45, 50), (42, 70)]
 }
 
+# 作物生长速度
 GROW_SPEED = {
     'corn': 1,
     'tomato': 0.7
 }
 
+# 出售售价
 SALE_PRICES = {
     'wood': 4,
     'apple': 2,
     'corn': 10,
     'tomato': 20
 }
+
+# 购买价格
 PURCHASE_PRICES = {
     'corn': 4,
     'tomato': 5
+}
+
+# 开始界面
+START_MENU = {
+    'start': '开始',
+    'setting': '设置'
 }

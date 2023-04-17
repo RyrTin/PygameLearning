@@ -130,6 +130,8 @@ class Menu:
         if selected:
             # draw.rect方法如果width参数>0 （这里是4） 就不会填充，而是变为设置描线宽度
             pygame.draw.rect(self.display_surface, 'black', bg_rect, 4, 4)
+
+            # 不同区域显示不同字符
             if self.index <= self.sell_border:
                 pos_rect = self.sell_text.get_rect(midleft=(self.main_rect.left + 250, bg_rect.centery))
                 self.display_surface.blit(self.sell_text, pos_rect)

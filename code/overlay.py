@@ -71,12 +71,12 @@ class Overlay:
 
         # 显示状态
         # rect的参数为（区域，颜色，（（左，顶），（宽，高）），边框宽度，弧度）
-        pygame.draw.rect(self.display_surface, 'White', (30, 20, 200, 70), 0, 6)
-        pygame.draw.rect(self.display_surface, 'Pink', (70, 30, 140, 20), 0, 6)
-        pygame.draw.rect(self.display_surface, 'Blue', (70, 60, 140, 20), 0, 6)
-        pygame.draw.rect(self.display_surface, 'Black', (30, 20, 200, 70), 2, 6)
-        pygame.draw.rect(self.display_surface, 'Black', (70, 30, 140, 20), 2, 6)
-        pygame.draw.rect(self.display_surface, 'Black', (70, 60, 140, 20), 2, 6)
+        health_rect = (70, 30, self.player.health * 40, 20)
+        magic_rect = (70, 60, self.player.magic * 40, 20)
+        pygame.draw.rect(self.display_surface, 'Pink', health_rect, 0, 6)
+        pygame.draw.rect(self.display_surface, 'Blue', magic_rect, 0, 6)
+        pygame.draw.rect(self.display_surface, 'Black', health_rect, 2, 6)
+        pygame.draw.rect(self.display_surface, 'Black', magic_rect, 2, 6)
         hp_surf = self.font_w.render(f'HP', False, 'Black')
         hp_rect = hp_surf.get_rect(topleft=OVERLAY_POSITIONS['health'])
         self.display_surface.blit(hp_surf, hp_rect)

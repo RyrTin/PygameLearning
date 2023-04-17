@@ -39,6 +39,10 @@ class Player(pygame.sprite.Sprite):
         # 设置精灵图层
         self.z = LAYERS['main']
 
+        # 生命属性
+        self.health = 5
+        self.magic = 3
+
         # 移动属性：方向，位置，速度
         # 方向属性：使用一个2维向量保存移动方向
         self.direction = pygame.math.Vector2()

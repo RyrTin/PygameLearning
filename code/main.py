@@ -1,7 +1,11 @@
+# 作   者：许晨昊
+# 开发日期：9/3/2023
+
 import sys
 import pygame
 from settings import *
 from level import Level
+from start import Start
 
 
 # 主程序
@@ -16,10 +20,24 @@ class Game:
         # 初始化一个时钟对象
         self.clock = pygame.time.Clock()
         # 实例化 Level类 ，用于生成背景和精灵
+        self.start = Start()
         self.level = Level()
 
     def run(self):
-        while True:
+        while self.start.start:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+            dt = self.clock.tick() / 1000
+            # print(dt)
+            # 调用level中的run方法
+            self.start.update()
+            # 刷新画面(只要改变就刷新，所以不用固定刷新速度）
+            pygame.display.update()
+
+        while not self.start.start:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
