@@ -16,7 +16,7 @@ import time
 
 
 # 负责绘制所有精灵的类
-class Level:
+class Home:
     # 各类初始化（精灵需要先创建组，再创建个体）
     def __init__(self):
         # tip:基本各种精灵组的创建都在这里,任何精灵都要先建组，再实例化并分组

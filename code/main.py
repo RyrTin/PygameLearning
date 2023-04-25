@@ -4,7 +4,7 @@
 import sys
 import pygame
 from settings import *
-from level import Level
+from home import Home
 from start import Start
 
 
@@ -21,7 +21,7 @@ class Game:
         self.clock = pygame.time.Clock()
         # 实例化 Level类 ，用于生成背景和精灵
         self.start = Start()
-        self.level = Level()
+        self.home = Home()
 
     def run(self):
         while self.start.start:
@@ -51,7 +51,7 @@ class Game:
             dt = self.clock.tick() / 1000
             # print(dt)
             # 调用level中的run方法
-            self.level.run(dt)
+            self.home.run(dt)
             # 刷新画面(只要改变就刷新，所以不用固定刷新速度）
             pygame.display.update()
 
