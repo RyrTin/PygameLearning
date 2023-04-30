@@ -2,7 +2,7 @@
 # 开发日期：24/3/2023
 
 import pygame
-from settings import *
+from data import *
 from timer import Timer
 
 

@@ -2,7 +2,7 @@
 # 开发日期：15/3/2023
 import pygame
 
-from settings import *
+from data import *
 from time import strftime
 from time import gmtime
 import math

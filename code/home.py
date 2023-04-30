@@ -1,7 +1,7 @@
 # 作   者：许晨昊
 # 开发日期：9/3/2023
 import pygame
-from settings import *
+from data import *
 from player import Player
 from overlay import Overlay
 from sprite import *
@@ -12,6 +12,7 @@ from soil import SoilLayer
 from sky import Rain, Sky
 from random import randint
 from menu import Menu
+from settings import *
 import time
 
 
@@ -21,6 +22,7 @@ class Home:
     def __init__(self):
         # tip:基本各种精灵组的创建都在这里,任何精灵都要先建组，再实例化并分组
         # 这里实例化一个玩家用于保存后面的玩家精灵（其他精灵实例化以后都保存在精灵组里，没有名字，实例了但没有完全实例）
+        self.game_paused = None
         self.player = None
         # 获取当前显示的Surface对象（这里应该是整个显示窗口？）（官网文档没有看懂，存疑）
         self.display_surface = pygame.display.get_surface()
@@ -42,6 +44,8 @@ class Home:
 
         # 创建覆盖层(UI)
         self.overlay = Overlay(self.player)
+
+        self.settings = Settings()
         # 过渡界面
         self.transition = Transition(self.reset, self.player)
 
@@ -62,13 +66,16 @@ class Home:
         # 音乐
         # 说实话有点难听- -，到时候换个素材包
         self.success = pygame.mixer.Sound('../audio/success.wav')
-        self.success.set_volume(0.3)
+        self.success.set_volume(volumes['action'])
         # self.music_1 = pygame.mixer.Sound('../audio/music.mp3')
         # self.music_1.set_volume(0.3)
         # self.music_1.play(loops=-1)
         self.music_2 = pygame.mixer.Sound('../audio/BGM.mp3')
-        self.music_2.set_volume(0.4)
+        self.music_2.set_volume(volumes['bgm'])
         self.music_2.play(loops=-1)
+
+        # 界面激活
+        self.active = False
 
     # 实例化游戏开始时就有的精灵和碰撞盒
     def setup(self):
@@ -161,7 +168,11 @@ class Home:
 
         self.shop_active = not self.shop_active
 
-    # 重置
+    # 打开设置
+    def toggle_menu(self):
+        self.game_paused = not self.game_paused
+
+        # 重置
     def reset(self):
         # 更新植物
         self.soil_layer.update_plants()

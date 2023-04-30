@@ -2,7 +2,7 @@
 # 开发日期：17/3/2023
 
 import pygame
-from settings import *
+from data import *
 from pytmx.util_pygame import load_pygame
 from support import *
 from random import choice
@@ -81,9 +81,8 @@ class SoilLayer:
     def __init__(self, all_sprites, collision_sprites):
 
         # 创建精灵组
-        # 初始化碰撞盒
+        # 初始化
         self.hit_rects = None
-
         self.all_sprites = all_sprites
         self.collision_sprites = collision_sprites
         # 初始化土壤精灵组 水精灵组 植物精灵组
@@ -105,10 +104,10 @@ class SoilLayer:
 
         # 声音(音效素材依托答辩)
         self.hoe_sound = pygame.mixer.Sound('../audio/hoe.wav')
-        self.hoe_sound.set_volume(0.1)
+        self.hoe_sound.set_volume(volumes['item'])
 
         self.plant_sound = pygame.mixer.Sound('../audio/plant.wav')
-        self.plant_sound.set_volume(0.1)
+        self.plant_sound.set_volume(volumes['item'])
 
     def create_soil_grid(self):
         ground = pygame.image.load('../graphics/world/ground.png')

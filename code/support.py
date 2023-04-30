@@ -2,6 +2,7 @@
 # 开发日期：15/3/2023
 import pygame
 from os import walk
+from data import *
 
 
 # 根据文件名导入文件
@@ -32,3 +33,19 @@ def import_folder_dict(path):
             surface_dict[image.split('.')[0]] = img_surf
 
     return surface_dict
+
+
+def import_folder_start(path):
+    # 图片表
+    surface_list = []
+    # walk函数的作用是在以top为根节点的目录树中游走，对树中的每个目录生成一个由(dir path, surnames, filenames)三项组成的三元组
+
+    for image in range(0, 82):
+        full_path = path + '/' + str(image) + '.png'
+        # print(full_path)
+        # 贴图在加载后用convert_alpha()统一格式
+        load = pygame.image.load(full_path).convert_alpha()
+        image_surf = pygame.transform.scale(load, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        surface_list.append(image_surf)
+
+    return surface_list

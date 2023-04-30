@@ -1,7 +1,7 @@
 # 作   者：许晨昊
 # 开发日期：15/3/2023
 import pygame
-from settings import *
+from data import *
 from random import randint, choice
 from timer import Timer
 

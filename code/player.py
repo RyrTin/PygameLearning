@@ -2,7 +2,7 @@
 # 开发日期：14/3/2023
 
 import pygame
-from settings import *
+from data import *
 from support import *
 from timer import Timer
 
@@ -110,7 +110,8 @@ class Player(pygame.sprite.Sprite):
 
         # 声音
         self.watering = pygame.mixer.Sound('../audio/water.mp3')
-        self.watering.set_volume(0.2)
+        # 音量
+        self.watering.set_volume(volumes['action'])
 
     # 通过碰撞检测响应动作
     def use_tool(self):
@@ -150,6 +151,7 @@ class Player(pygame.sprite.Sprite):
         # 调用一个import_folder方法来导入每个动作组的所有图片
         for animation in self.animations.keys():
             full_path = '../graphics/character/' + animation
+
             self.animations[animation] = import_folder(full_path)
         # print(self.animations)
 
@@ -159,6 +161,9 @@ class Player(pygame.sprite.Sprite):
         # 这里取余数比直接归零慢
         if self.frame_index >= len(self.animations[self.status]):
             self.frame_index = 0
+
+        # 获取动画帧
+        # 注意这个字典保存的是surface格式的文件
         self.image = self.animations[self.status][int(self.frame_index)]
 
     # 响应按键（大部分功能都必须由按键响应，是各类功能开始的部分）

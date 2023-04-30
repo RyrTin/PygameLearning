@@ -1,9 +1,10 @@
 # 作   者：许晨昊
 # 开发日期：9/3/2023
 
+# from import * 可以直接使用函数 不必指定模块 比直接import 方便
 import sys
 import pygame
-from settings import *
+from data import *
 from home import Home
 from start import Start
 
@@ -12,6 +13,7 @@ from start import Start
 class Game:
     def __init__(self):
         # 初始化pygame模块
+
         pygame.init()
         # 设置窗口大小
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -21,23 +23,30 @@ class Game:
         self.clock = pygame.time.Clock()
         # 实例化 Level类 ，用于生成背景和精灵
         self.start = Start()
-        self.home = Home()
+        self.home = None
 
     def run(self):
-        while self.start.start:
+        while self.start.active:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.start.toggle_settings()
 
-            dt = self.clock.tick() / 1000
             # print(dt)
             # 调用level中的run方法
-            self.start.update()
-            # 刷新画面(只要改变就刷新，所以不用固定刷新速度）
+            dt = self.clock.tick() / 1000
+            self.start.update(dt)
+            self.start.set_volume(volumes['bgm'])
             pygame.display.update()
 
-        while not self.start.start:
+        # 放在前面实例化会导致bgm提前出来
+        self.home = Home()
+        # 音乐淡出，进入游戏
+        self.start.music.fadeout(300)
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -57,6 +66,5 @@ class Game:
 
 
 if __name__ == '__main__':
-    # print('start')
     game = Game()
     game.run()

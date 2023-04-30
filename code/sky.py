@@ -1,7 +1,7 @@
 # 作   者：许晨昊
 # 开发日期：23/3/2023
 import pygame
-from settings import *
+from data import *
 from support import import_folder
 from sprite import Generic
 from random import randint, choice
