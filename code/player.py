@@ -19,7 +19,6 @@ class Player(pygame.sprite.Sprite):
         super().__init__(group)
         # 主要有各种功能素材，属性的初始化
         # 导入动画素材包
-
         self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
                            'right_idle': [], 'left_idle': [], 'up_idle': [], 'down_idle': [],
                            'right_hoe': [], 'left_hoe': [], 'up_hoe': [], 'down_hoe': [],
@@ -255,6 +254,7 @@ class Player(pygame.sprite.Sprite):
         if self.timers['tool use'].active:
             self.status = self.status.split('_')[0] + '_' + self.selected_tool
 
+        # 计时器跑完了直接睡觉
         if not self.timers['time'].active:
             self.sleep = True
 

@@ -117,7 +117,7 @@ class Start:
                 current_item = self.options[self.index]
                 # print(current_item)
                 if self.index == 0:
-                    self.active = False
+                    self.toggle_active()
                 if self.index == 1:
                     self.toggle_settings()
                 if self.index == 2:
@@ -150,7 +150,10 @@ class Start:
     def set_volume(self, value):
         self.music.set_volume(value)
 
-    def toggle_settings(self, ):
+    def toggle_active(self):
+        self.active = not self.active
+
+    def toggle_settings(self):
         # 切换
         self.settings_active = not self.settings_active
 

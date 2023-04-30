@@ -7,6 +7,8 @@ from pygame.math import Vector2
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 TILE_SIZE = 64
+# 帧数
+FPS = 60
 
 # 覆盖层位置
 OVERLAY_POSITIONS = {
@@ -137,5 +139,4 @@ volumes = {'bgm': 0.4, 'action': 0.2, 'item': 0.1}
 max_volume = {'bgm': 0.8, 'action': 0.4, 'item': 0.4}
 min_volume = 0
 
-# 帧数
-FRAME = 120
+

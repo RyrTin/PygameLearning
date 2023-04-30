@@ -70,12 +70,12 @@ class Home:
         # self.music_1 = pygame.mixer.Sound('../audio/music.mp3')
         # self.music_1.set_volume(0.3)
         # self.music_1.play(loops=-1)
-        self.music_2 = pygame.mixer.Sound('../audio/BGM.mp3')
-        self.music_2.set_volume(volumes['bgm'])
-        self.music_2.play(loops=-1)
+        self.music = pygame.mixer.Sound('../audio/BGM.mp3')
+        self.music.set_volume(volumes['bgm'])
+        self.music.play(loops=-1)
 
         # 界面激活
-        self.active = False
+        self.active = True
 
     # 实例化游戏开始时就有的精灵和碰撞盒
     def setup(self):
@@ -172,7 +172,17 @@ class Home:
     def toggle_menu(self):
         self.game_paused = not self.game_paused
 
-        # 重置
+    # 切换活跃
+    def toggle_active(self):
+        self.active = not self.active
+
+    def stop_time(self):
+        self.player.timers['time'].stop()
+
+    def restart_time(self):
+        self.player.timers['time'].reactivate()
+
+    # 重置
     def reset(self):
         # 更新植物
         self.soil_layer.update_plants()
@@ -237,7 +247,7 @@ class Home:
         # 开商店下雨暂停
         if self.raining and not self.shop_active:
             self.rain.update()
-        # 天色在下午开始黯淡
+        # 天色在下午2:00开始黯淡
         if self.player.timers['time'].pass_time()/1000 > 360:
             self.sky.display(dt)
 
@@ -247,8 +257,7 @@ class Home:
         # 最高优先级层，并且不受玩家影响，最后绘制所以一定在最上面
         # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
         # 所有操作判定在sleep为true时锁死 所以只能看到过渡画面
-        # ？这里会产生一个时间加速的bug
-        # 已通过修改timer解决
+        # ？这里会产生一个时间加速的bug(已通过修改timer解决)
         if self.player.sleep:
             self.transition.play()
 

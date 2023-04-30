@@ -1,5 +1,7 @@
 # 作   者：许晨昊
 # 开发日期：15/3/2023
+from _csv import reader
+
 import pygame
 from os import walk
 from data import *
@@ -49,3 +51,12 @@ def import_folder_start(path):
         surface_list.append(image_surf)
 
     return surface_list
+
+
+def import_csv_layout(path):
+    terrain_map = []
+    with open(path) as level_map:
+        layout = reader(level_map, delimiter=',')
+        for row in layout:
+            terrain_map.append(list(row))
+        return terrain_map
