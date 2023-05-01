@@ -4,17 +4,20 @@ from tile import Tile
 from player import Player
 from support import *
 from random import choice, randint
-# from weapon import Weapon
+
+
+from weapon import Weapon
 # from ui import UI
-# from enemy import Enemy
-# from particles import AnimationPlayer
-# from magic import MagicPlayer
+from enemy import Enemy
+from particles import AnimationPlayer
+from magic import MagicPlayer
 
 
 class Fight:
     def __init__(self):
 
         # 获得显示区域
+
         self.display_surface = pygame.display.get_surface()
         self.game_paused = False
 
@@ -30,35 +33,44 @@ class Fight:
 
         # 创建地图
         self.create_map()
-
-        # 交互界面
-        self.ui = UI()
-        self.upgrade = Upgrade(self.player)
-
-        # particles
+        # 初始化玩家
+        self.player = None
+        # # 交互界面
+        # self.ui = UI()
+        # self.upgrade = Upgrade(self.player)
+        #
+        # 粒子效果
         self.animation_player = AnimationPlayer()
         self.magic_player = MagicPlayer(self.animation_player)
 
+    # 创建地图
     def create_map(self):
+        # 读取贴图文件信息
         layouts = {
-            'boundary': import_csv_layout('../map/map_FloorBlocks.csv'),
-            'grass': import_csv_layout('../map/map_Grass.csv'),
-            'object': import_csv_layout('../map/map_Objects.csv'),
-            'entities': import_csv_layout('../map/map_Entities.csv')
+            'boundary': import_csv_layout('../data/map/map_FloorBlocks.csv'),
+            'grass': import_csv_layout('../data/map/map_Grass.csv'),
+            'object': import_csv_layout('../data/map/map_Objects.csv'),
+            'entities': import_csv_layout('../data/map/map_Entities.csv')
         }
+        # 读取贴图
         graphics = {
             'grass': import_folder('../graphics/Grass'),
             'objects': import_folder('../graphics/objects')
         }
 
+        #
         for style, layout in layouts.items():
             for row_index, row in enumerate(layout):
                 for col_index, col in enumerate(row):
                     if col != '-1':
-                        x = col_index * TILESIZE
-                        y = row_index * TILESIZE
+                        # 把点位信息转化为贴图位置信息
+                        # x*64就是横坐标，纵坐标同理
+                        x = col_index * TILE_SIZE
+                        y = row_index * TILE_SIZE
+                        # 如果是别边界区，放入障碍组（tile创建的精灵都有碰撞盒）
                         if style == 'boundary':
                             Tile((x, y), [self.obstacle_sprites], 'invisible')
+                        # 如果是草，随机选择贴图，放入碰撞组，可视组，可攻击组
                         if style == 'grass':
                             random_grass_image = choice(graphics['grass'])
                             Tile(
@@ -66,12 +78,14 @@ class Fight:
                                 [self.visible_sprites, self.obstacle_sprites, self.attackable_sprites],
                                 'grass',
                                 random_grass_image)
-
+                        # 如果是物品 ， 根据编号选择物品，
                         if style == 'object':
                             surf = graphics['objects'][int(col)]
                             Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'object', surf)
 
+                        # 如果是实体
                         if style == 'entities':
+                            # 如果值为394  读取信息创建角色
                             if col == '394':
                                 self.player = Player(
                                     (x, y),
@@ -80,6 +94,7 @@ class Fight:
                                     self.create_attack,
                                     self.destroy_attack,
                                     self.create_magic)
+                            # 其他值则创建怪物
                             else:
                                 if col == '390':
                                     monster_name = 'bamboo'
@@ -96,13 +111,17 @@ class Fight:
                                     self.obstacle_sprites,
                                     self.damage_player,
                                     self.trigger_death_particles,
-                                    self.add_exp)
+                                    )
 
     def create_attack(self):
 
+        # 创建攻击（放入可视精灵组 攻击精灵组） （碰撞盒呢?)
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
 
     def create_magic(self, style, strength, cost):
+
+        # 创建魔法
+        # 治疗魔法
         if style == 'heal':
             self.magic_player.heal(self.player, strength, cost, [self.visible_sprites])
 
