@@ -138,6 +138,7 @@ class SoilLayer:
     def get_hit(self, point):
         for rect in self.hit_rects:
             if rect.collidepoint(point):
+                self.hoe_sound.set_volume(volumes['item'])
                 self.hoe_sound.play()
 
                 # 确定这次碰撞在哪个格子里
@@ -209,6 +210,7 @@ class SoilLayer:
                 # 检查并添加种植信息
                 if 'P' not in self.grid[y][x]:
                     self.grid[y][x].append('P')
+                    self.plant_sound.set_volume(volumes['item'])
                     self.plant_sound.play()
                     # 触发种植
                     Plant(seed,

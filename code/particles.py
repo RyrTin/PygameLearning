@@ -61,6 +61,7 @@ class AnimationPlayer:
 
     # 创建粒子　放进组里
     def create_particles(self, animation_type, pos, groups):
+        # 根据动画类型选择动画帧
         animation_frames = self.frames[animation_type]
         # 生成粒子
         ParticleEffect(pos, animation_frames, groups)

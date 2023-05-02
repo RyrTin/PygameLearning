@@ -2,18 +2,18 @@ import pygame
 from settings import *
 from tile import Tile
 from player import Player
+from levelplayer import LevelPlayer
 from support import *
 from random import choice, randint
 
-
 from weapon import Weapon
-# from ui import UI
+from ui import UI
 from enemy import Enemy
 from particles import AnimationPlayer
 from magic import MagicPlayer
 
 
-class Fight:
+class Level:
     def __init__(self):
 
         # 获得显示区域
@@ -31,17 +31,20 @@ class Fight:
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
 
-        # 创建地图
-        self.create_map()
         # 初始化玩家
         self.player = None
-        # # 交互界面
-        # self.ui = UI()
-        # self.upgrade = Upgrade(self.player)
-        #
+        # 创建地图
+        self.create_map()
+
+        # 交互界面
+        self.ui = UI()
+
         # 粒子效果
         self.animation_player = AnimationPlayer()
         self.magic_player = MagicPlayer(self.animation_player)
+
+        # 界面激活
+        self.active = True
 
     # 创建地图
     def create_map(self):
@@ -58,7 +61,7 @@ class Fight:
             'objects': import_folder('../graphics/objects')
         }
 
-        #
+        # 生成地图物品精灵
         for style, layout in layouts.items():
             for row_index, row in enumerate(layout):
                 for col_index, col in enumerate(row):
@@ -87,7 +90,7 @@ class Fight:
                         if style == 'entities':
                             # 如果值为394  读取信息创建角色
                             if col == '394':
-                                self.player = Player(
+                                self.player = LevelPlayer(
                                     (x, y),
                                     [self.visible_sprites],
                                     self.obstacle_sprites,
@@ -104,6 +107,7 @@ class Fight:
                                     monster_name = 'raccoon'
                                 else:
                                     monster_name = 'squid'
+                                # 自定义敌人精灵
                                 Enemy(
                                     monster_name,
                                     (x, y),
@@ -111,13 +115,18 @@ class Fight:
                                     self.obstacle_sprites,
                                     self.damage_player,
                                     self.trigger_death_particles,
-                                    )
+                                )
+
+    # 平A
+    def toggle_active(self):
+        self.active = not self.active
 
     def create_attack(self):
 
         # 创建攻击（放入可视精灵组 攻击精灵组） （碰撞盒呢?)
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
 
+    # 魔法
     def create_magic(self, style, strength, cost):
 
         # 创建魔法
@@ -128,57 +137,84 @@ class Fight:
         if style == 'flame':
             self.magic_player.flame(self.player, cost, [self.visible_sprites, self.attack_sprites])
 
+    # 消除攻击
     def destroy_attack(self):
+        # 当前攻击（存在）
         if self.current_attack:
             self.current_attack.kill()
         self.current_attack = None
 
+    # 玩家攻击逻辑
     def player_attack_logic(self):
+        # 如果攻击精灵（存在）
         if self.attack_sprites:
+            # 对每个攻击精灵进行碰撞检测
             for attack_sprite in self.attack_sprites:
+                # 创建碰撞精灵组
+                # spritecollide方法会返回两个组中有碰撞的精灵
                 collision_sprites = pygame.sprite.spritecollide(attack_sprite, self.attackable_sprites, False)
+                # 如果碰撞精灵存在
                 if collision_sprites:
                     for target_sprite in collision_sprites:
+                        # 如果被碰撞精灵是草
                         if target_sprite.sprite_type == 'grass':
                             pos = target_sprite.rect.center
                             offset = pygame.math.Vector2(0, 75)
+                            # 播放叶子动画
                             for leaf in range(randint(3, 6)):
                                 self.animation_player.create_grass_particles(pos - offset, [self.visible_sprites])
+                            # 目标精灵消除
                             target_sprite.kill()
                         else:
+                            # 如果不是草，造成伤害
                             target_sprite.get_damage(self.player, attack_sprite.sprite_type)
 
+    # 玩家受击
     def damage_player(self, amount, attack_type):
+        # 如果玩家不在无敌帧（可攻击）
         if self.player.vulnerable:
+            # 玩家扣血
             self.player.health -= amount
+            # 切换为无敌帧
             self.player.vulnerable = False
+            # 记录受击时间
             self.player.hurt_time = pygame.time.get_ticks()
+            # 制造受击粒子动画，放入可视组
             self.animation_player.create_particles(attack_type, self.player.rect.center, [self.visible_sprites])
 
+    # 触发死亡粒子效果
     def trigger_death_particles(self, pos, particle_type):
 
+        # 制造粒子动画，加入可视组
         self.animation_player.create_particles(particle_type, pos, self.visible_sprites)
 
+    # 增加经验
     # def add_exp(self, amount):
     #
     #     self.player.exp += amount
 
+    # 暂停游戏
     def toggle_menu(self):
 
         self.game_paused = not self.game_paused
 
+    # 运行
     def run(self):
+        # 绘制图像
         self.visible_sprites.custom_draw(self.player)
+        # 更新ui
         self.ui.display(self.player)
 
         if self.game_paused:
             pass
         else:
+            # 更新精灵
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.player_attack_logic()
 
 
+# 重写精灵组（自定义绘制）
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self):
 
@@ -193,6 +229,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.floor_surf = pygame.image.load('../graphics/tilemap/ground.png').convert()
         self.floor_rect = self.floor_surf.get_rect(topleft=(0, 0))
 
+    # 自定义绘图
     def custom_draw(self, player):
 
         # 获得位移量

@@ -77,8 +77,8 @@ START_MENU = {
 
 # 碰撞盒位移
 HITBOX_OFFSET = {
-    'player': -26,
-    'object': -40,
+    'player': (-126, -80),
+    'object': -50,
     'grass': -10,
     'invisible': 0}
 
@@ -108,7 +108,8 @@ BAR_COLOR_SELECTED = '#111111'
 BG_COLOR_SELECTED = '#EEEEEE'
 
 # 武器数据
-weapon_data = {
+weapon_data = {'GM_sword': {
+    'cooldown': 10, 'damage': 9999, 'graphic': '../graphics/weapons/GM_sword/full.png'},
     'sword': {'cooldown': 100, 'damage': 15, 'graphic': '../graphics/weapons/sword/full.png'},
     'lance': {'cooldown': 400, 'damage': 30, 'graphic': '../graphics/weapons/lance/full.png'},
     'axe': {'cooldown': 300, 'damage': 20, 'graphic': '../graphics/weapons/axe/full.png'},

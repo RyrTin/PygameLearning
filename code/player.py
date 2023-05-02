@@ -1,7 +1,10 @@
 # 作   者：许晨昊
 # 开发日期：14/3/2023
+import math
 
 import pygame
+
+
 from data import *
 from support import *
 from timer import Timer
@@ -14,7 +17,7 @@ class Player(pygame.sprite.Sprite):
     # tips:大部分与玩家相关的功能都应该与Player有关，所以实现一个方法后必须考虑放在Player的什么位置
     # 比如这里需要跟树木精灵 tree_sprites 进行交互，所以也应该作为参数传到Player的类中
     # 初始化。
-    def __init__(self, pos, group, collision_sprites, tree_sprites, interaction, soil_layer, toggle_shop):
+    def __init__(self, pos, group, collision_sprites, tree_sprites, interaction, soil_layer, toggle_shop, toggle_fight):
         # 调用父类方法初始化
         super().__init__(group)
         # 主要有各种功能素材，属性的初始化
@@ -23,7 +26,8 @@ class Player(pygame.sprite.Sprite):
                            'right_idle': [], 'left_idle': [], 'up_idle': [], 'down_idle': [],
                            'right_hoe': [], 'left_hoe': [], 'up_hoe': [], 'down_hoe': [],
                            'right_axe': [], 'left_axe': [], 'up_axe': [], 'down_axe': [],
-                           'right_water': [], 'left_water': [], 'up_water': [], 'down_water': []}
+                           'right_water': [], 'left_water': [], 'up_water': [], 'down_water': [],
+                           }
         self.import_assets()
 
         # 角色初始状态为面朝下
@@ -50,7 +54,7 @@ class Player(pygame.sprite.Sprite):
         self.pre_y = None
         self.pos = pygame.math.Vector2(self.rect.center)
         # 速度属性
-        self.speed = 200
+        self.speed = 300
 
         # 碰撞检测！（狂喜） 拷贝一个精灵rect，适当缩小边缘，并且需要跟随精灵，这一点将在move方法里体现
         # 精细化碰撞盒，修改人物大小
@@ -87,6 +91,7 @@ class Player(pygame.sprite.Sprite):
         # 交互
         self.interaction = interaction
         self.sleep = False
+        self.fight = False
 
         # 玩家资产(词典)
         self.item_inventory = {
@@ -106,6 +111,9 @@ class Player(pygame.sprite.Sprite):
 
         # 商店
         self.toggle_shop = toggle_shop
+
+        # 战斗
+        self.toggle_fight = toggle_fight
 
         # 声音
         self.watering = pygame.mixer.Sound('../audio/water.mp3')
@@ -169,22 +177,22 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        # 使用工具，睡觉时无法移动
-        if not self.timers['tool use'].active and not self.sleep:
+        # 使用工具，睡觉，进入战斗时无法移动
+        if not self.timers['tool use'].active and not self.sleep and not self.fight:
             # 控制方向
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_w]:
                 self.direction.y = -1
                 self.status = 'up'
-            elif keys[pygame.K_DOWN]:
+            elif keys[pygame.K_s]:
                 self.direction.y = 1
                 self.status = 'down'
             else:
                 self.direction.y = 0
 
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_a]:
                 self.direction.x = -1
                 self.status = 'left'
-            elif keys[pygame.K_RIGHT]:
+            elif keys[pygame.K_d]:
                 self.direction.x = 1
                 self.status = 'right'
             else:
@@ -236,7 +244,11 @@ class Player(pygame.sprite.Sprite):
                     if collided_interaction_sprite[0].name == 'Trader':
                         # toggle的意思是切换(这个方法是level里扔进来的)
                         self.toggle_shop()
-                    else:
+                    elif collided_interaction_sprite[0].name == 'Fight':
+                        self.toggle_fight()
+                        self.fight = True
+                    # 时间到了才能睡觉
+                    elif (480 + math.floor(self.timers['time'].pass_time() / 1000)) > 480:
                         # 强制面朝左
                         self.status = 'left_idle'
                         self.sleep = True
@@ -317,6 +329,7 @@ class Player(pygame.sprite.Sprite):
 
     # 重写Sprite中的update方法 tip:所有每一帧需要刷新的动作都放在这里，每一帧跑一次，不写就没有
     def update(self, dt):
+        self.watering.set_volume(volumes['action'])
         self.input()
         self.get_status()
         self.update_timers()

@@ -86,6 +86,7 @@ class Tree(Generic):
         self.health -= 1
 
         # 播放声音
+        self.axe_sound.set_volume(volumes['item'])
         self.axe_sound.play()
 
         # 移除苹果

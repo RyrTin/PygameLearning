@@ -22,6 +22,7 @@ class Home:
     def __init__(self):
         # tip:基本各种精灵组的创建都在这里,任何精灵都要先建组，再实例化并分组
         # 这里实例化一个玩家用于保存后面的玩家精灵（其他精灵实例化以后都保存在精灵组里，没有名字，实例了但没有完全实例）
+
         self.game_paused = None
         self.player = None
         # 获取当前显示的Surface对象（这里应该是整个显示窗口？）（官网文档没有看懂，存疑）
@@ -47,7 +48,7 @@ class Home:
 
         self.settings = Settings()
         # 过渡界面
-        self.transition = Transition(self.reset, self.player)
+        self.transition = Transition()
 
         # 天空
         self.rain = Rain(self.all_sprites)
@@ -76,6 +77,7 @@ class Home:
 
         # 界面激活
         self.active = True
+        self.fight = False
 
     # 实例化游戏开始时就有的精灵和碰撞盒
     def setup(self):
@@ -141,12 +143,16 @@ class Home:
                     tree_sprites=self.tree_sprites,
                     interaction=self.interaction_sprites,
                     soil_layer=self.soil_layer,
-                    toggle_shop=self.toggle_shop
+                    toggle_shop=self.toggle_shop,
+                    toggle_fight=self.toggle_fight
                 )
             if obj.name == 'Bed':
                 Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
 
             if obj.name == 'Trader':
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+
+            if obj.name == 'Fight':
                 Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
 
         # 生成地图
@@ -167,6 +173,10 @@ class Home:
     def toggle_shop(self):
 
         self.shop_active = not self.shop_active
+
+        # 切换战斗
+    def toggle_fight(self):
+        self.fight = not self.fight
 
     # 打开设置
     def toggle_menu(self):
@@ -219,6 +229,9 @@ class Home:
 
     # 游戏运行（主要就是跑一边各个精灵的update）
     def run(self, dt):
+        # 更新音量
+        self.success.set_volume(volumes['action'])
+        self.music.set_volume(volumes['bgm'])
         # 绘图逻辑
         # dt保证了每个sprite刷新一次的时间相等，从而控制时间同步
         # 填充背景（显示区域） (覆盖上一个大循环生成的所有画面，可以保证显示区域外都是黑屏，不然都是拖影，之前绘制的画面永远都在）
@@ -259,7 +272,38 @@ class Home:
         # 所有操作判定在sleep为true时锁死 所以只能看到过渡画面
         # ？这里会产生一个时间加速的bug(已通过修改timer解决)
         if self.player.sleep:
-            self.transition.play()
+            self.player.direction = pygame.math.Vector2()
+
+            if self.transition.fade_in and not self.transition.fade_out:
+                self.transition.fadein()
+
+            elif self.transition.fade_in and self.transition.fade_out:
+                # print('day end')
+                self.reset()
+                self.player.timers['time'].activate()
+                self.transition.fade_in = False
+
+            if self.transition.fade_out and not self.transition.fade_in:
+                self.transition.fadeout()
+
+            elif not self.transition.fade_out and not self.transition.fade_in:
+                self.transition.fade_in = True
+                self.player.sleep = False
+                # print('wake up')
+
+        if self.fight:
+
+            if self.transition.fade_in and not self.transition.fade_out:
+                self.transition.fadein()
+
+            elif self.transition.fade_in and self.transition.fade_out:
+                print('fight')
+                self.transition.fade_in = True
+                self.transition.fade_out = False
+                self.player.fight = False
+                self.transition.color = 255
+                self.transition.speed *= -1
+                self.active = not self.active
 
 
 # 重写一个精灵组（主要是为了添加一个模拟相机的绘制功能）

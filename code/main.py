@@ -4,6 +4,8 @@
 # from import * 可以直接使用函数 不必指定模块 比直接import 方便
 import sys
 import pygame
+
+from level import Level
 from data import *
 from home import Home
 from start import Start
@@ -14,6 +16,7 @@ class Game:
     def __init__(self):
         # 初始化变量
         self.stop = False
+        self.start_create = False
         self.home_create = False
         # self.pause = False
 
@@ -21,6 +24,7 @@ class Game:
         pygame.init()
         # 设置窗口大小
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.display_surface = pygame.display.get_surface()
         # 设置窗口标题
         pygame.display.set_caption('Pyland')
         # 初始化一个时钟对象
@@ -28,13 +32,16 @@ class Game:
         # 实例化 Level类 ，用于生成背景和精灵
         self.start = None
         self.home = None
-        self.fight = None
+        self.level = None
 
     def run(self):
         # 初始界面循环
         while True:
             # 实例化开始界面
-            self.start = Start()
+            if not self.start_create:
+                self.start = Start()
+                self.start_create = not self.home_create
+            self.start.music.play()
             while self.start.active:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -54,12 +61,16 @@ class Game:
             # 放在前面实例化会导致bgm提前出来
             # 实例化完以后就不再重新生成，拥有一定的持久性
             if not self.home_create:
+                # 先黑个屏
+                self.display_surface.fill((0, 0, 0))
+                pygame.display.update()
                 self.home = Home()
                 self.home_create = not self.home_create
             else:
+                self.home.music.play()
                 self.home.toggle_active()
             # 音乐淡出，进入游戏
-            self.start.music.fadeout(300)
+            self.start.music.stop()
             # 家园界面循环
 
             # 重启时间
@@ -67,12 +78,8 @@ class Game:
                 self.home.restart_time()
                 self.stop = False
 
+            # 激活主地图
             while self.home.active:
-                # for event in pygame.event.get():
-                #     if event.type == pygame.QUIT:
-                #         pygame.quit()
-                #         sys.exit()
-
                 # clock.tick()将统计当前tick和上一此调用tick的时间间隔，单位为s，通常/1000 以转化为毫秒
                 # 获得一个相对稳定的dt（其实是上一帧的运行时间），通过这个时间来控制精灵图片的位移
                 # 这样便保证了在不同帧数下，相同时间内各种精灵贴图的位移是固定的
@@ -97,8 +104,27 @@ class Game:
                             # 停止时间
                             self.home.stop_time()
                             self.stop = True
+            self.screen.fill(255)
+            self.home.music.stop()
 
-            self.home.music.fadeout(300)
+            # 只在触发战斗时初始化
+            if self.home.fight:
+                self.level = Level()
+
+                while self.level.active:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            sys.exit()
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:
+                                self.home.toggle_fight()
+                                self.level.toggle_active()
+                    self.screen.fill(WATER_COLOR)
+                    self.clock.tick(FPS)
+                    self.level.run()
+                    pygame.display.update()
+            self.screen.fill(255)
 
 
 if __name__ == '__main__':

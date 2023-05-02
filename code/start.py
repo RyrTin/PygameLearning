@@ -7,12 +7,14 @@ from timer import Timer
 from data import *
 from settings import *
 from support import *
+from transition import *
 
 
 class Start:
 
     def __init__(self):
         # 基本设置
+
         self.title_surf = None
         self.options = ['start', 'sound setting', 'exit']
         self.bg_list = {}
@@ -26,7 +28,9 @@ class Start:
         self.active = True
         # 设置初始化
         self.settings = Settings()
+        self.transition = Transition()
         self.settings_active = False
+        self.enter = False
 
         self.display_surface = pygame.display.get_surface()
         # 设置文本字体
@@ -101,7 +105,7 @@ class Start:
         # 时间到了就关闭计时器
         self.timer.update()
 
-        if not self.timer.active:
+        if not self.timer.active and not self.enter:
             if keys[pygame.K_UP]:
                 self.index -= 1
                 self.timer.activate()
@@ -117,7 +121,7 @@ class Start:
                 current_item = self.options[self.index]
                 # print(current_item)
                 if self.index == 0:
-                    self.toggle_active()
+                    self.enter = True
                 if self.index == 1:
                     self.toggle_settings()
                 if self.index == 2:
@@ -144,7 +148,7 @@ class Start:
             pygame.draw.rect(self.display_surface, 'pink', bg_rect, 4, 4)
 
     def show_title(self, text_surf):
-        text_rect = text_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT/2 - 120))
+        text_rect = text_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 120))
         self.display_surface.blit(text_surf, text_rect)
 
     def set_volume(self, value):
@@ -164,8 +168,20 @@ class Start:
         if self.settings_active:
             self.settings.display()
 
-        else:
+        elif self.enter:
+            if self.transition.fade_in and not self.transition.fade_out:
+                self.transition.fadein()
 
+            elif self.transition.fade_in and self.transition.fade_out:
+                print('enter')
+                self.transition.fade_in = True
+                self.transition.fade_out = False
+                self.enter = False
+                self.transition.color = 255
+                self.transition.speed *= -1
+                self.toggle_active()
+
+        else:
             self.input()
 
             self.show_title(self.title_surf)

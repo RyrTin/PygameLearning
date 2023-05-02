@@ -16,7 +16,7 @@ class Tile(pygame.sprite.Sprite):
 
         # 如果是物品（树木等） 修改一点位置
         if sprite_type == 'object':
-            self.rect = self.image.get_rect(topleft=(pos[0], pos[1] - TILE_SIZE))
+            self.rect = self.image.get_rect(topleft=(pos[0], pos[1] - TILE_SIZE - 10))
         else:
             self.rect = self.image.get_rect(topleft=pos)
         # 生成碰撞箱

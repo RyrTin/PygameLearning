@@ -2,20 +2,12 @@ import pygame
 from math import sin
 
 
-def wave_value():
-    value = sin(pygame.time.get_ticks())
-    # 利用三角函数周期性的返回255和0 （学到了）
-    if value >= 0:
-        return 255
-    else:
-        return 0
-
-
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
+        self.value = None
         self.frame_index = 0
-        self.animation_speed = 0.15  # (把dt固定下来了)
+        self.animation_speed = 0.06  # (把dt固定下来了)
         self.direction = pygame.math.Vector2()
 
     def move(self, speed):
@@ -37,6 +29,7 @@ class Entity(pygame.sprite.Sprite):
         # 碰撞后修正位置（同理）
         if direction == 'horizontal':
             for sprite in self.obstacle_sprites:
+                # 判断是否碰撞（返回True or False）
                 if sprite.hitbox.colliderect(self.hitbox):
                     if self.direction.x > 0:
                         self.hitbox.right = sprite.hitbox.left
@@ -50,3 +43,11 @@ class Entity(pygame.sprite.Sprite):
                         self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:
                         self.hitbox.top = sprite.hitbox.bottom
+
+    def wave_value(self):
+        self.value = sin(pygame.time.get_ticks())
+        # 利用三角函数周期性的返回255和0 （学到了）
+        if self.value >= 0:
+            return 255
+        else:
+            return 0
