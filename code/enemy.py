@@ -5,7 +5,7 @@ from support import *
 
 
 class Enemy(Entity):
-    def __init__(self, monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles):
+    def __init__(self, monster_name, pos, groups, obstacle_sprites, damage_player, trigger_death_particles, add_money):
 
         # 初始化设置
         super().__init__(groups)
@@ -30,7 +30,7 @@ class Enemy(Entity):
         self.monster_name = monster_name
         monster_info = monster_data[self.monster_name]
         self.health = monster_info['health']
-        self.exp = monster_info['exp']
+        self.money = monster_info['money']
         self.speed = monster_info['speed']
         self.attack_damage = monster_info['damage']
         self.resistance = monster_info['resistance']
@@ -45,6 +45,7 @@ class Enemy(Entity):
         self.attack_cooldown = 400
         self.damage_player = damage_player
         self.trigger_death_particles = trigger_death_particles
+        self.add_money = add_money
 
         # 无敌帧设置
         self.vulnerable = True
@@ -195,6 +196,7 @@ class Enemy(Entity):
             self.trigger_death_particles(self.rect.center, self.monster_name)
             # 播放击杀音效
             self.death_sound.play()
+            self.add_money(self.money)
 
     # 受击效果
     def hit_reaction(self):

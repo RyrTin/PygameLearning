@@ -4,7 +4,6 @@ import math
 
 import pygame
 
-
 from data import *
 from support import *
 from timer import Timer
@@ -68,6 +67,7 @@ class Player(pygame.sprite.Sprite):
             'tool switch': Timer(200),
             'seed use': Timer(350, self.use_seed),
             'seed switch': Timer(200),
+            'switch': Timer(300),
             'time': Timer(420000)
         }
         # 初始化目标点
@@ -119,6 +119,10 @@ class Player(pygame.sprite.Sprite):
         self.watering = pygame.mixer.Sound('../audio/water.mp3')
         # 音量
         self.watering.set_volume(volumes['action'])
+
+        # 状态
+        self.quit = False
+        self.game_paused = False
 
     # 通过碰撞检测响应动作
     def use_tool(self):
@@ -200,7 +204,7 @@ class Player(pygame.sprite.Sprite):
 
             # 控制工具
             # 事实上方法被运行一次以后计时器就被关闭了，所以这里可以不用约束
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_j]:
                 # 这里按下空格后activate持续了350ms
                 # activate以后 get_status就能一直根据计时器的active状态使角色短时间内一直处于某种状态（控制动画时常）
                 # 同时根据字典将方法传入Timer开始运作
@@ -218,7 +222,7 @@ class Player(pygame.sprite.Sprite):
                 self.tool_index = self.tool_index if self.tool_index < len(self.tools) else 0
                 self.selected_tool = self.tools[self.tool_index]
             # 控制种子
-            if keys[pygame.K_LCTRL]:
+            if keys[pygame.K_k]:
                 # 这里按下空格后activate持续了350ms
                 self.timers['seed use'].activate()
                 # 使用种子时不能移动，所以初始化速度（即位移变为0，0）
@@ -236,19 +240,20 @@ class Player(pygame.sprite.Sprite):
                 # print(self.selected_seed)
 
             # 交互区
-            if keys[pygame.K_RETURN]:
+            if keys[pygame.K_RETURN] and not self.timers['switch'].active:
+                self.timers['switch'].activate()
                 collided_interaction_sprite = pygame.sprite.spritecollide(self, self.interaction, False)
                 if collided_interaction_sprite:
                     # 触发交互就不能动了
                     self.direction = pygame.math.Vector2()
                     if collided_interaction_sprite[0].name == 'Trader':
-                        # toggle的意思是切换(这个方法是level里扔进来的)
+                        # toggle的意思是切换(这个方法是home里扔进来的)
                         self.toggle_shop()
                     elif collided_interaction_sprite[0].name == 'Fight':
                         self.toggle_fight()
                         self.fight = True
-                    # 时间到了才能睡觉
-                    elif (480 + math.floor(self.timers['time'].pass_time() / 1000)) > 480:
+                    # 时间到了才能睡觉(18:00)
+                    elif (480 + math.floor(self.timers['time'].pass_time() / 1000)) > 480:  # （完成测试后改成1080）
                         # 强制面朝左
                         self.status = 'left_idle'
                         self.sleep = True

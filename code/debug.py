@@ -3,7 +3,10 @@
 
 import pygame,sys
 
+from start import Start
+from home import Home
 from level import Level
+from confirm import *
 from settings import *
 
 
@@ -16,7 +19,7 @@ class Game:
         pygame.display.set_caption('Zelda')
         self.clock = pygame.time.Clock()
 
-        self.level = Level()
+        self.confirm = Confirm()
 
     def run(self):
         while True:
@@ -24,13 +27,10 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_m:
-                        self.level.toggle_menu()
-                        # print('1')
 
-            self.screen.fill(WATER_COLOR)
-            self.level.run()
+            # self.screen.fill(WATER_COLOR)
+
+            self.confirm.display()
             pygame.display.update()
             self.clock.tick(FPS)
 

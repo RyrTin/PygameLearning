@@ -1,7 +1,7 @@
 # 作   者：许晨昊
 # 开发日期：9/3/2023
 
-# from import * 可以直接使用函数 不必指定模块 比直接import 方便
+# from import * 可以直接使用函数 不必指定模块 比import 方便
 import sys
 import pygame
 
@@ -18,8 +18,8 @@ class Game:
         self.stop = False
         self.start_create = False
         self.home_create = False
-        # self.pause = False
 
+        # self.pause = False
         # 初始化pygame模块
         pygame.init()
         # 设置窗口大小
@@ -48,7 +48,7 @@ class Game:
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
+                        if event.key == pygame.K_ESCAPE and not self.start.enter:
                             self.start.toggle_settings()
 
                 # print(dt)
@@ -58,26 +58,27 @@ class Game:
                 self.start.set_volume(volumes['bgm'])
                 pygame.display.update()
 
-            # 放在前面实例化会导致bgm提前出来
-            # 实例化完以后就不再重新生成，拥有一定的持久性
-            if not self.home_create:
+                # 放在前面实例化会导致bgm提前出来
+                # 实例化完以后就不再重新生成，拥有一定的持久性
                 # 先黑个屏
-                self.display_surface.fill((0, 0, 0))
-                pygame.display.update()
+            self.display_surface.fill((0, 0, 0))
+            pygame.display.update()
+
+            if not self.home_create:
+
                 self.home = Home()
                 self.home_create = not self.home_create
             else:
                 self.home.music.play()
                 self.home.toggle_active()
-            # 音乐淡出，进入游戏
-            self.start.music.stop()
-            # 家园界面循环
 
+            # 家园界面循环
             # 重启时间
             if self.stop:
                 self.home.restart_time()
                 self.stop = False
 
+            self.home.enter = True
             # 激活主地图
             while self.home.active:
                 # clock.tick()将统计当前tick和上一此调用tick的时间间隔，单位为s，通常/1000 以转化为毫秒
@@ -97,34 +98,42 @@ class Game:
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
+                        if event.key == pygame.K_ESCAPE and not self.home.enter:
                             # 切换页面状态
-                            self.home.toggle_active()
-                            self.start.toggle_active()
-                            # 停止时间
-                            self.home.stop_time()
-                            self.stop = True
-            self.screen.fill(255)
+                            self.home.toggle_pause()
+                if self.home.player.quit:
+                    self.home.toggle_active()
+                    self.start.toggle_active()
+                    self.home.toggle_quit()
+                    # 停止时间
+                    self.home.stop_time()
+                    self.stop = True
+
             self.home.music.stop()
 
-            # 只在触发战斗时初始化
+            # 只在触发战斗时初始化（退出不保留）
             if self.home.fight:
-                self.level = Level()
+                # 黑个屏先
+                self.display_surface.fill((0, 0, 0))
+                pygame.display.update()
 
+                self.level = Level()
                 while self.level.active:
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
                             sys.exit()
                         if event.type == pygame.KEYDOWN:
-                            if event.key == pygame.K_ESCAPE:
-                                self.home.toggle_fight()
-                                self.level.toggle_active()
-                    self.screen.fill(WATER_COLOR)
+                            if event.key == pygame.K_ESCAPE and not self.level.enter:
+                                # 切换页面状态
+                                self.level.toggle_pause()
+
                     self.clock.tick(FPS)
                     self.level.run()
                     pygame.display.update()
-            self.screen.fill(255)
+                    if self.level.player.quit:
+                        self.home.toggle_fight()
+                        self.level.toggle_active()
 
 
 if __name__ == '__main__':

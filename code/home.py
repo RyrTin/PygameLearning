@@ -13,6 +13,7 @@ from sky import Rain, Sky
 from random import randint
 from menu import Menu
 from settings import *
+from confirm import Confirm
 import time
 
 
@@ -23,7 +24,6 @@ class Home:
         # tip:基本各种精灵组的创建都在这里,任何精灵都要先建组，再实例化并分组
         # 这里实例化一个玩家用于保存后面的玩家精灵（其他精灵实例化以后都保存在精灵组里，没有名字，实例了但没有完全实例）
 
-        self.game_paused = None
         self.player = None
         # 获取当前显示的Surface对象（这里应该是整个显示窗口？）（官网文档没有看懂，存疑）
         self.display_surface = pygame.display.get_surface()
@@ -49,6 +49,8 @@ class Home:
         self.settings = Settings()
         # 过渡界面
         self.transition = Transition()
+        # 确认界面
+        self.confirm = Confirm(self.player)
 
         # 天空
         self.rain = Rain(self.all_sprites)
@@ -76,6 +78,7 @@ class Home:
         self.music.play(loops=-1)
 
         # 界面激活
+        self.enter = True
         self.active = True
         self.fight = False
 
@@ -174,17 +177,19 @@ class Home:
 
         self.shop_active = not self.shop_active
 
-        # 切换战斗
+    # 切换战斗
     def toggle_fight(self):
         self.fight = not self.fight
-
-    # 打开设置
-    def toggle_menu(self):
-        self.game_paused = not self.game_paused
 
     # 切换活跃
     def toggle_active(self):
         self.active = not self.active
+
+    def toggle_pause(self):
+        self.player.game_paused = not self.player.game_paused
+
+    def toggle_quit(self):
+        self.player.quit = not self.player.quit
 
     def stop_time(self):
         self.player.timers['time'].stop()
@@ -229,6 +234,7 @@ class Home:
 
     # 游戏运行（主要就是跑一边各个精灵的update）
     def run(self, dt):
+        # 跑一次画面必定刷新
         # 更新音量
         self.success.set_volume(volumes['action'])
         self.music.set_volume(volumes['bgm'])
@@ -251,7 +257,13 @@ class Home:
         if self.shop_active:
             # 菜单是单独的图层，必须后于精灵绘制（除非做成精灵并设置优先级）
             self.menu.update()
+            # 看商店时间还会动
+            self.player.update_timers()
+        elif self.player.game_paused:
+            self.confirm.display()
+            self.player.update_timers()
         else:
+            # 不看菜单时才能动
             self.all_sprites.update(dt)
             # 植物收获碰撞判定
             self.plant_collision()
@@ -261,7 +273,8 @@ class Home:
         if self.raining and not self.shop_active:
             self.rain.update()
         # 天色在下午2:00开始黯淡
-        if self.player.timers['time'].pass_time()/1000 > 360:
+        if self.player.timers['time'].pass_time() / 1000 > 360:
+            # print('into dust')
             self.sky.display(dt)
 
         # 覆盖层
@@ -271,7 +284,22 @@ class Home:
         # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
         # 所有操作判定在sleep为true时锁死 所以只能看到过渡画面
         # ？这里会产生一个时间加速的bug(已通过修改timer解决)
-        if self.player.sleep:
+        # 画面渐变
+        # 战斗 渐入 睡觉 暂停 只能同时跑一个 用elif语句
+        if self.enter:
+            if self.transition.fade_in and not self.transition.fade_out:
+                self.transition.color = 0
+                self.transition.fade_in = False
+                self.transition.fade_out = True
+                self.transition.speed *= -1
+            if self.transition.fade_out and not self.transition.fade_in:
+                self.transition.fadeout()
+
+            if not self.transition.fade_out and not self.transition.fade_in:
+                self.enter = not self.enter
+                self.transition.color = 255
+                self.transition.fade_in = True
+        elif self.player.sleep:
             self.player.direction = pygame.math.Vector2()
 
             if self.transition.fade_in and not self.transition.fade_out:
@@ -291,14 +319,13 @@ class Home:
                 self.player.sleep = False
                 # print('wake up')
 
-        if self.fight:
+        elif self.fight:
 
             if self.transition.fade_in and not self.transition.fade_out:
                 self.transition.fadein()
 
             elif self.transition.fade_in and self.transition.fade_out:
-                print('fight')
-                self.transition.fade_in = True
+                # print('fight')
                 self.transition.fade_out = False
                 self.player.fight = False
                 self.transition.color = 255

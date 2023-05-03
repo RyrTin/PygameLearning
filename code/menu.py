@@ -74,20 +74,21 @@ class Menu:
         # 时间到了就关闭计时器
         self.timer.update()
 
-        if keys[pygame.K_ESCAPE]:
+        if keys[pygame.K_k]:
             # 把菜单active置反，关闭菜单
             self.toggle_menu()
+            self.timer.activate()
 
         if not self.timer.active:
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_w]:
                 self.index -= 1
                 self.timer.activate()
 
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_d]:
                 self.index += 1
                 self.timer.activate()
 
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_j]:
                 self.timer.activate()
 
                 # 获得物品

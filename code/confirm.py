@@ -1,28 +1,27 @@
 # 作   者：许晨昊
-# 开发日期：17/4/2023
+# 开发日期：2023/5/1
 
 import pygame
 from data import *
 
 
-class Settings:
-    def __init__(self):
+class Confirm:
+    def __init__(self, player):
 
         # 基本设置
-
+        self.player = player
         self.item_list = []
         # 获取显示区
         self.display_surface = pygame.display.get_surface()
 
         # 属性条设置
-        self.attribute_nr = len(volumes)
-        self.attribute_names = list(volumes.keys())
-        self.max_values = list(max_volume.values())
-        self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
+        self.attribute_nr = 2
+        self.attribute_names = ('yes', 'no')
+        self.font = pygame.font.Font(UI_FONT, 40)
 
         # 属性条高度
         # 获得高度
-        self.height = self.display_surface.get_size()[1] * 0.8
+        self.height = self.display_surface.get_size()[1] // 10
         # 获得宽度
         self.width = self.display_surface.get_size()[0] // 6
         self.create_items()
@@ -49,14 +48,15 @@ class Settings:
                 self.selection_time = pygame.time.get_ticks()
 
             # 触发效果
-            if keys[pygame.K_w]:
+            if keys[pygame.K_SPACE]:
                 self.can_move = False
                 self.selection_time = pygame.time.get_ticks()
-                self.item_list[self.selection_index].trigger(0.1)
-            elif keys[pygame.K_s]:
-                self.can_move = False
-                self.selection_time = pygame.time.get_ticks()
-                self.item_list[self.selection_index].trigger(-0.1)
+
+                if self.selection_index == 0:
+                    self.player.game_paused = False
+                    self.player.quit = True
+                if self.selection_index == 1:
+                    self.player.game_paused = False
 
     # 控制选择速度（不然太快了）
     def selection_cooldown(self):
@@ -72,15 +72,12 @@ class Settings:
         for item, index in enumerate(range(self.attribute_nr)):
             # 控制水平位置
             # 获得显示区全宽
+
             full_width = self.display_surface.get_size()[0]
-            # 每条的平均宽度
-            increment = full_width // self.attribute_nr
-            # 每一条的左边条位置
-            # 通过控制self.width的宽度来控制整体宽度
-            left = (item * increment) + (increment - self.width) // 2
+            left = (index+1)*(full_width//3) - 100
 
             # 每一条属性的顶边位置
-            top = self.display_surface.get_size()[1] * 0.1
+            top = self.display_surface.get_size()[1] * 0.4
 
             # 创建显示条加入列表
             item = Item(left, top, self.width, self.height, index, self.font)
@@ -96,9 +93,7 @@ class Settings:
             # bgm action item
             name = self.attribute_names[index]
             # 这三个对应的值
-            value = volumes[name]
-            max_value = self.max_values[index]
-            item.display(self.display_surface, self.selection_index, name, value, max_value)
+            item.display(self.display_surface, self.selection_index, name)
 
 
 class Item:
@@ -117,50 +112,10 @@ class Item:
         title_surf = self.font.render(name, False, color)
         title_rect = title_surf.get_rect(midtop=self.rect.midtop + pygame.math.Vector2(0, 20))
 
-        # 获得属性当前值
-        value_surf = self.font.render(f'{round((volumes[name]), 1)}', False, color)
-        value_rect = value_surf.get_rect(midbottom=self.rect.midbottom - pygame.math.Vector2(0, 20))
-
         # 绘制表格
         surface.blit(title_surf, title_rect)
-        surface.blit(value_surf, value_rect)
 
-    # 显示控制条
-    def display_bar(self, surface, value, max_value, selected):
-
-        # 控制条位置
-        top = self.rect.midtop + pygame.math.Vector2(0, 60)
-        bottom = self.rect.midbottom - pygame.math.Vector2(0, 60)
-        # 神奇的语法
-        color = BAR_COLOR_SELECTED if selected else BAR_COLOR
-
-        # 控制条选项
-        full_height = bottom[1] - top[1]
-        # 获得选项当前的相对高度
-        relative_number = (value / max_value) * full_height
-        # 浮标所在的位置
-        value_rect = pygame.Rect(top[0] - 15, bottom[1] - relative_number, 30, 10)
-
-        # 绘制选项
-        pygame.draw.line(surface, color, top, bottom, 5)
-        pygame.draw.rect(surface, color, value_rect)
-
-    # 触发控制
-    def trigger(self, move):
-        self.move = move
-        selected_attribute = list(volumes.keys())[self.index]
-
-        # 控制音量
-        if max_volume[selected_attribute] >= volumes[selected_attribute] >= min_volume:
-            volumes[selected_attribute] += self.move
-
-        if volumes[selected_attribute] > max_volume[selected_attribute]:
-            volumes[selected_attribute] = max_volume[selected_attribute]
-
-        if volumes[selected_attribute] < min_volume:
-            volumes[selected_attribute] = min_volume
-
-    def display(self, surface, selection_num, name, value, max_value):
+    def display(self, surface, selection_num, name):
         # 绘制选中框
         if self.index == selection_num:
             # 选中框的颜色与其他的不同
@@ -171,4 +126,3 @@ class Item:
             pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 4)
 
         self.display_names(surface, name, self.index == selection_num)
-        self.display_bar(surface, value, max_value, self.index == selection_num)

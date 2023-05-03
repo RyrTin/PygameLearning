@@ -2,6 +2,7 @@ import pygame
 from data import *
 from support import *
 from entity import *
+from confirm import *
 
 
 class LevelPlayer(Entity):
@@ -21,7 +22,7 @@ class LevelPlayer(Entity):
         self.attack_time = None
         self.obstacle_sprites = obstacle_sprites
 
-        # weapon
+        # 武器设置
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
         self.weapon_index = 0
@@ -30,28 +31,31 @@ class LevelPlayer(Entity):
         self.weapon_switch_time = None
         self.switch_duration_cooldown = 200
 
-        # magic
+        # 魔法设置
         self.create_magic = create_magic
         self.magic_index = 0
         self.magic = list(magic_data.keys())[self.magic_index]
         self.can_switch_magic = True
         self.magic_switch_time = None
 
-        # stats
+        # 玩家状态
         self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
         self.max_stats = {'health': 300, 'energy': 140, 'attack': 20, 'magic': 10, 'speed': 10}
-        self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 100, 'magic': 100, 'speed': 100}
-        self.health = self.stats['health'] * 0.5
-        self.energy = self.stats['energy'] * 0.8
-        self.exp = 5000
+        self.health = self.stats['health']
+        self.energy = self.stats['energy']
+        self.money = 0
         self.speed = self.stats['speed']
 
-        # damage timer
+        # 界面状态
+        self.quit = False
+        self.game_paused = False
+
+        # 攻击计时器
         self.vulnerable = True
         self.hurt_time = None
         self.invulnerability_duration = 500
 
-        # import a sound
+        # 导入声音
         self.weapon_attack_sound = pygame.mixer.Sound('../audio/sword.wav')
         self.weapon_attack_sound.set_volume(volumes['action'])
 
@@ -69,7 +73,7 @@ class LevelPlayer(Entity):
         if not self.attacking:
             keys = pygame.key.get_pressed()
 
-            # movement input
+            # 玩家移动
             if keys[pygame.K_w]:
                 self.direction.y = -1
                 self.status = 'up'
@@ -88,14 +92,14 @@ class LevelPlayer(Entity):
             else:
                 self.direction.x = 0
 
-            # attack input
+            # 使用攻击
             if keys[pygame.K_j]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 self.create_attack()
                 self.weapon_attack_sound.play()
 
-            # magic input
+            # 使用技能
             if keys[pygame.K_k]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
@@ -128,15 +132,16 @@ class LevelPlayer(Entity):
 
     def get_status(self):
 
-        # idle status
+        # 待机状态
         if self.direction.x == 0 and self.direction.y == 0:
-            if not 'idle' in self.status and not 'attack' in self.status:
+            if 'idle' not in self.status and 'attack' not in self.status:
                 self.status = self.status + '_idle'
 
+        # 攻击状态
         if self.attacking:
             self.direction.x = 0
             self.direction.y = 0
-            if not 'attack' in self.status:
+            if 'attack' not in self.status:
                 if 'idle' in self.status:
                     self.status = self.status.replace('_idle', '_attack')
                 else:
@@ -145,7 +150,9 @@ class LevelPlayer(Entity):
             if 'attack' in self.status:
                 self.status = self.status.replace('_attack', '')
 
+    # 攻击冷却
     def cooldowns(self):
+        # 获得攻击发动时间
         current_time = pygame.time.get_ticks()
 
         if self.attacking:
@@ -168,16 +175,16 @@ class LevelPlayer(Entity):
     def animate(self):
         animation = self.animations[self.status]
 
-        # loop over the frame index
+        # 循环播放动画帧
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
-        # set the image
+        # 设置图像
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center=self.hitbox.center)
 
-        # flicker
+        # 闪烁（受伤）
         if not self.vulnerable:
             alpha = self.wave_value()
             self.image.set_alpha(alpha)

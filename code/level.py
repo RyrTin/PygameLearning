@@ -1,26 +1,25 @@
 import pygame
+
 from settings import *
 from tile import Tile
 from player import Player
 from levelplayer import LevelPlayer
 from support import *
 from random import choice, randint
-
+from confirm import Confirm
 from weapon import Weapon
 from ui import UI
 from enemy import Enemy
 from particles import AnimationPlayer
 from magic import MagicPlayer
+from transition import Transition
 
 
 class Level:
     def __init__(self):
 
         # 获得显示区域
-
         self.display_surface = pygame.display.get_surface()
-        self.game_paused = False
-
         # 生成可视精灵组
         self.visible_sprites = YSortCameraGroup()
         # 生成碰撞精灵组
@@ -38,13 +37,21 @@ class Level:
 
         # 交互界面
         self.ui = UI()
-
+        # 渐变
+        self.transition = Transition()
         # 粒子效果
         self.animation_player = AnimationPlayer()
         self.magic_player = MagicPlayer(self.animation_player)
 
         # 界面激活
         self.active = True
+
+        # 页面状态
+        self.game_paused = False
+        self.enter = True
+
+        # 确认界面
+        self.confirm = Confirm(self.player)
 
     # 创建地图
     def create_map(self):
@@ -115,11 +122,17 @@ class Level:
                                     self.obstacle_sprites,
                                     self.damage_player,
                                     self.trigger_death_particles,
+                                    self.add_money,
                                 )
 
-    # 平A
     def toggle_active(self):
         self.active = not self.active
+
+    def toggle_pause(self):
+        self.player.game_paused = not self.player.game_paused
+
+    def toggle_quit(self):
+        self.player.quit = not self.player.quit
 
     def create_attack(self):
 
@@ -188,30 +201,42 @@ class Level:
         # 制造粒子动画，加入可视组
         self.animation_player.create_particles(particle_type, pos, self.visible_sprites)
 
-    # 增加经验
-    # def add_exp(self, amount):
-    #
-    #     self.player.exp += amount
+    # 增加金币
+    def add_money(self, amount):
 
-    # 暂停游戏
-    def toggle_menu(self):
-
-        self.game_paused = not self.game_paused
+        self.player.money += amount
 
     # 运行
     def run(self):
-        # 绘制图像
-        self.visible_sprites.custom_draw(self.player)
-        # 更新ui
-        self.ui.display(self.player)
 
-        if self.game_paused:
-            pass
+        if self.player.game_paused:
+            self.confirm.display()
         else:
+            # 绘制图像
+            self.display_surface.fill(WATER_COLOR)
+            self.visible_sprites.custom_draw(self.player)
+            # 更新ui
+            self.ui.display(self.player)
+
             # 更新精灵
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.player_attack_logic()
+
+        # 画面渐变
+        if self.enter:
+            if self.transition.fade_in and not self.transition.fade_out:
+                self.transition.color = 0
+                self.transition.fade_in = False
+                self.transition.fade_out = True
+                self.transition.speed *= -1
+            if self.transition.fade_out and not self.transition.fade_in:
+                self.transition.fadeout()
+
+            if not self.transition.fade_out and not self.transition.fade_in:
+                self.enter = not self.enter
+                self.transition.color = 255
+                self.transition.fade_in = True
 
 
 # 重写精灵组（自定义绘制）

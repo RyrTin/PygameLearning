@@ -54,8 +54,8 @@ class Overlay:
         pygame.draw.rect(self.display_surface, 'black', map_rect, 5)
 
         # 显示头像
-        self.figure_x += self.player.get_move_x() / 11
-        self.figure_y += self.player.get_move_y() / 11
+        self.figure_x += self.player.get_move_x() / 15
+        self.figure_y += self.player.get_move_y() / 15
         figure_surf = self.figure_surf
         figure_rect = figure_surf.get_rect(midbottom=(self.figure_x, self.figure_y))
         self.display_surface.blit(figure_surf, figure_rect)

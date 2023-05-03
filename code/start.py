@@ -106,19 +106,19 @@ class Start:
         self.timer.update()
 
         if not self.timer.active and not self.enter:
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_w]:
                 self.index -= 1
                 self.timer.activate()
 
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_s]:
                 self.index += 1
                 self.timer.activate()
 
-            if keys[pygame.K_RETURN]:
+            if keys[pygame.K_j]:
                 self.timer.activate()
 
                 # 获得选项
-                current_item = self.options[self.index]
+                # current_item = self.options[self.index]
                 # print(current_item)
                 if self.index == 0:
                     self.enter = True
@@ -173,7 +173,7 @@ class Start:
                 self.transition.fadein()
 
             elif self.transition.fade_in and self.transition.fade_out:
-                print('enter')
+                # print('enter')
                 self.transition.fade_in = True
                 self.transition.fade_out = False
                 self.enter = False

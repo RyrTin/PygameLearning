@@ -15,7 +15,7 @@ class Transition:
         # 生成一坨和屏幕一样大的图片
         self.image = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.color = 255
-        self.speed = -2
+        self.speed = -3
         self.fade_in = True
         self.fade_out = False
 
@@ -40,7 +40,7 @@ class Transition:
             self.color = 255
             self.speed *= -1
             self.fade_out = False
-        # 生成一个渐变黑的图片(调用一次变黑一点)
+        # 生成一个渐变白的图片(调用一次变黑一点)
         self.image.fill((self.color, self.color, self.color))
         self.display_surface.blit(self.image, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
 

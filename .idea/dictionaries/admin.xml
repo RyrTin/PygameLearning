@@ -4,10 +4,12 @@
       <w>attackable</w>
       <w>cooldowns</w>
       <w>ddee</w>
+      <w>fadein</w>
       <w>farmable</w>
       <w>framable</w>
       <w>midbottom</w>
       <w>rects</w>
+      <w>spritecollide</w>
       <w>topleft</w>
       <w>waterd</w>
     </words>
