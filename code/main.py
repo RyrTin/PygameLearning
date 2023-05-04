@@ -118,7 +118,12 @@ class Game:
                 pygame.display.update()
 
                 self.level = Level()
+
                 while self.level.active:
+                    self.clock.tick(FPS)
+                    self.level.run()
+                    pygame.display.update()
+
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
@@ -127,10 +132,10 @@ class Game:
                             if event.key == pygame.K_ESCAPE and not self.level.enter:
                                 # 切换页面状态
                                 self.level.toggle_pause()
+                            # 一键跳过（测试）
+                            elif event.key == pygame.K_p and not self.level.enter and not self.level.finish:
+                                self.level.toggle_finish()
 
-                    self.clock.tick(FPS)
-                    self.level.run()
-                    pygame.display.update()
                     if self.level.player.quit:
                         self.home.toggle_fight()
                         self.level.toggle_active()

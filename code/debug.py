@@ -18,19 +18,23 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Zelda')
         self.clock = pygame.time.Clock()
-
-        self.confirm = Confirm()
+        # self.home = Home()
+        self.level = Level()
+        # self.confirm = Confirm()
 
     def run(self):
-        while True:
+        while self.level.active:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p and not self.level.enter and not self.level.finish:
+                        self.level.toggle_finish()
 
             # self.screen.fill(WATER_COLOR)
 
-            self.confirm.display()
+            self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)
 

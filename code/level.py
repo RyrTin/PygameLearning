@@ -19,6 +19,7 @@ class Level:
     def __init__(self):
 
         # 获得显示区域
+
         self.display_surface = pygame.display.get_surface()
         # 生成可视精灵组
         self.visible_sprites = YSortCameraGroup()
@@ -29,6 +30,7 @@ class Level:
         self.current_attack = None
         self.attack_sprites = pygame.sprite.Group()
         self.attackable_sprites = pygame.sprite.Group()
+        self.enemy_sprites = pygame.sprite.Group()
 
         # 初始化玩家
         self.player = None
@@ -49,6 +51,7 @@ class Level:
         # 页面状态
         self.game_paused = False
         self.enter = True
+        self.finish = False
 
         # 确认界面
         self.confirm = Confirm(self.player)
@@ -118,7 +121,7 @@ class Level:
                                 Enemy(
                                     monster_name,
                                     (x, y),
-                                    [self.visible_sprites, self.attackable_sprites],
+                                    [self.visible_sprites, self.attackable_sprites, self.enemy_sprites],
                                     self.obstacle_sprites,
                                     self.damage_player,
                                     self.trigger_death_particles,
@@ -130,6 +133,9 @@ class Level:
 
     def toggle_pause(self):
         self.player.game_paused = not self.player.game_paused
+
+    def toggle_finish(self):
+        self.finish = not self.finish
 
     def toggle_quit(self):
         self.player.quit = not self.player.quit
@@ -166,8 +172,10 @@ class Level:
                 # 创建碰撞精灵组
                 # spritecollide方法会返回两个组中有碰撞的精灵
                 collision_sprites = pygame.sprite.spritecollide(attack_sprite, self.attackable_sprites, False)
+
                 # 如果碰撞精灵存在
                 if collision_sprites:
+                    # print(collision_sprites)
                     for target_sprite in collision_sprites:
                         # 如果被碰撞精灵是草
                         if target_sprite.sprite_type == 'grass':
@@ -217,11 +225,12 @@ class Level:
             self.visible_sprites.custom_draw(self.player)
             # 更新ui
             self.ui.display(self.player)
-
             # 更新精灵
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.player_attack_logic()
+            if not self.enemy_sprites:
+                self.finish = True
 
         # 画面渐变
         if self.enter:
@@ -237,6 +246,17 @@ class Level:
                 self.enter = not self.enter
                 self.transition.color = 255
                 self.transition.fade_in = True
+
+        elif self.finish:
+            if self.transition.fade_in and not self.transition.fade_out:
+                self.transition.fadein()
+
+            elif self.transition.fade_in and self.transition.fade_out:
+                self.transition.fade_out = False
+                self.transition.color = 255
+                self.transition.speed *= -1
+                self.toggle_quit()
+                # print(self.finish)
 
 
 # 重写精灵组（自定义绘制）

@@ -177,6 +177,7 @@ class Enemy(Entity):
             if attack_type == 'weapon':
                 # 扣血
                 self.health -= player.get_full_weapon_damage()
+            # 魔法
             else:
                 # 扣血
                 self.health -= player.get_full_magic_damage()
