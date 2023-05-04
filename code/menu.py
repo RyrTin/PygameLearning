@@ -84,7 +84,7 @@ class Menu:
                 self.index -= 1
                 self.timer.activate()
 
-            if keys[pygame.K_d]:
+            if keys[pygame.K_s]:
                 self.index += 1
                 self.timer.activate()
 

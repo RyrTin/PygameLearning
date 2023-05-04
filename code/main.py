@@ -111,6 +111,7 @@ class Game:
                     self.home.stop_time()
                     self.stop = True
 
+                # print(self.home.enter)
             self.home.music.stop()
 
             # 只在触发战斗时初始化（退出不保留）

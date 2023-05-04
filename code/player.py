@@ -104,7 +104,8 @@ class Player(pygame.sprite.Sprite):
             'corn': 5,
             'tomato': 5
         }
-        self.money = 200
+
+        self.money = 999
 
         # 土壤
         self.soil_layer = soil_layer
@@ -314,6 +315,7 @@ class Player(pygame.sprite.Sprite):
         # 水平移动
         self.pre_x = self.pos.x
         self.pos.x += self.direction.x * self.speed * dt
+
         # 这里四舍五入可以减少一些偶然的bug（？）
         self.hitbox.centerx = round(self.pos.x)
         self.rect.centerx = self.hitbox.centerx

@@ -18,6 +18,8 @@ OVERLAY_POSITIONS = {
     'info': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 470),
     'health': (40, 30),
     'magic': (40, 60),
+    'atk': (40, 90),
+    'atk_n': (80, 90),
     'money': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 440)
 }
 
@@ -145,6 +147,5 @@ min_volume = 0
 rewards = {'fight': 0}
 
 # 玩家属性
-player_stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
-player_max_stats = {'health': 200, 'energy': 140, 'attack': 20, 'magic': 10, 'speed': 10}
-
+player_stats = {'health': 100, 'energy': 60, 'attack': 0, 'magic': 4, 'speed': 5}
+player_max_stats = {'health': 200, 'energy': 140, 'attack': 30, 'magic': 10, 'speed': 10}

@@ -20,7 +20,6 @@ class Level:
     def __init__(self):
 
         # 获得显示区域
-
         self.display_surface = pygame.display.get_surface()
         # 生成可视精灵组
         self.visible_sprites = YSortCameraGroup()
@@ -35,13 +34,16 @@ class Level:
 
         # 初始化玩家
         self.player = None
+
         # 创建地图
         self.create_map()
 
         # 交互界面
         self.ui = UI()
+
         # 渐变
         self.transition = Transition()
+
         # 粒子效果
         self.animation_player = AnimationPlayer()
         self.magic_player = MagicPlayer(self.animation_player)
@@ -196,7 +198,10 @@ class Level:
         # 如果玩家不在无敌帧（可攻击）
         if self.player.vulnerable:
             # 玩家扣血
+
             self.player.health -= amount
+            if self.player.health <= 0:
+                self.player.health = 0
             # 切换为无敌帧
             self.player.vulnerable = False
             # 记录受击时间
@@ -221,20 +226,27 @@ class Level:
         if self.player.game_paused:
             self.confirm.display()
         # 死亡时游戏结束
-        elif self.player.health <= 0:
+        if self.player.health <= 0:
             # 不能移动
             self.player.direction = pygame.math.Vector2()
             self.toggle_finish()
         else:
-            # 绘制图像
+            # 绘制背景
             self.display_surface.fill(WATER_COLOR)
-            self.visible_sprites.custom_draw(self.player)
+            # self.visible_sprites.custom_draw(self.player)
             # 更新ui
-            self.ui.display(self.player)
+            # self.ui.display(self.player)
             # 更新精灵
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.player_attack_logic()
+
+            # 更新图像
+            self.visible_sprites.custom_draw(self.player)
+
+            # 更新ui
+            self.ui.display(self.player)
+
             # 没有敌人时游戏结束
             if not self.enemy_sprites:
                 self.finish = True
