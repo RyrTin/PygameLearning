@@ -39,10 +39,11 @@ class LevelPlayer(Entity):
         self.magic_switch_time = None
 
         # 玩家状态
-        self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
-        self.max_stats = {'health': 300, 'energy': 140, 'attack': 20, 'magic': 10, 'speed': 10}
-        self.health = self.stats['health']
-        self.energy = self.stats['energy']
+        self.stats = player_stats
+        self.max_stats = player_max_stats
+        # 血量（测试进入半血）
+        self.health = self.stats['health'] * 0.5
+        self.energy = self.stats['energy'] * 0.5
         self.money = 0
         self.speed = self.stats['speed']
 

@@ -1,7 +1,7 @@
 # 作   者：许晨昊
-# 开发日期：2023/5/2
+# 开发日期：2023/4/2
 
-import pygame,sys
+import pygame, sys
 
 from start import Start
 from home import Home
@@ -16,7 +16,7 @@ class Game:
         # general setup
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption('Zelda')
+        pygame.display.set_caption('Pyland')
         self.clock = pygame.time.Clock()
         # self.home = Home()
         self.level = Level()
@@ -31,8 +31,6 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p and not self.level.enter and not self.level.finish:
                         self.level.toggle_finish()
-
-            # self.screen.fill(WATER_COLOR)
 
             self.level.run()
             pygame.display.update()

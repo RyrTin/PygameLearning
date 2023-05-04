@@ -71,8 +71,8 @@ class Overlay:
 
         # 显示状态
         # rect的参数为（区域，颜色，（（左，顶），（宽，高）），边框宽度，弧度）
-        health_rect = (70, 30, self.player.health * 40, 20)
-        magic_rect = (70, 60, self.player.magic * 40, 20)
+        health_rect = (70, 30, self.player.health * 3, 20)
+        magic_rect = (70, 60, self.player.magic * 3, 20)
         pygame.draw.rect(self.display_surface, 'Pink', health_rect, 0, 6)
         pygame.draw.rect(self.display_surface, 'Blue', magic_rect, 0, 6)
         pygame.draw.rect(self.display_surface, 'Black', health_rect, 2, 6)
@@ -83,3 +83,9 @@ class Overlay:
         mp_surf = self.font_w.render(f'MP', False, 'Black')
         mp_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['magic'])
         self.display_surface.blit(mp_surf, mp_rect)
+
+        # 显示money
+        text_surf = self.font_n.render(f'${self.player.money}', False, 'Black')
+        text_rect = text_surf.get_rect(midbottom=OVERLAY_POSITIONS['money'])
+
+        self.display_surface.blit(text_surf, text_rect)

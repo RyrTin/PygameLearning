@@ -17,7 +17,8 @@ OVERLAY_POSITIONS = {
     'map': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 500),
     'info': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 470),
     'health': (40, 30),
-    'magic': (40, 60)
+    'magic': (40, 60),
+    'money': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 440)
 }
 
 # 工具位移
@@ -88,7 +89,7 @@ HEALTH_BAR_WIDTH = 200
 ENERGY_BAR_WIDTH = 140
 ITEM_BOX_SIZE = 80
 UI_FONT = '../font/LycheeSoda.ttf'
-UI_FONT_SIZE = 18
+UI_FONT_SIZE = 20
 
 # 基本颜色
 WATER_COLOR = '#71ddee'
@@ -97,8 +98,8 @@ UI_BORDER_COLOR = '#111111'
 TEXT_COLOR = '#EEEEEE'
 
 # UI颜色
-HEALTH_COLOR = 'red'
-ENERGY_COLOR = 'blue'
+HEALTH_COLOR = 'Pink'
+ENERGY_COLOR = 'Blue'
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
 # 设置格式
@@ -121,7 +122,7 @@ magic_data = {
     'flame': {'strength': 5, 'cost': 20, 'graphic': '../graphics/particles/flame/fire.png'},
     'heal': {'strength': 20, 'cost': 10, 'graphic': '../graphics/particles/heal/heal.png'}}
 
-# 敌人设置
+# 敌人数据
 monster_data = {
     'squid': {'health': 100, 'money': 10, 'damage': 20, 'attack_type': 'slash',
               'attack_sound': '../audio/attack/slash.wav', 'speed': 3, 'resistance': 3, 'attack_radius': 80,
@@ -140,4 +141,10 @@ volumes = {'bgm': 0.4, 'action': 0.2, 'item': 0.1}
 max_volume = {'bgm': 0.8, 'action': 0.4, 'item': 0.4}
 min_volume = 0
 
+# 收入
+rewards = {'fight': 0}
+
+# 玩家属性
+player_stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
+player_max_stats = {'health': 200, 'energy': 140, 'attack': 20, 'magic': 10, 'speed': 10}
 

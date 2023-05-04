@@ -254,31 +254,29 @@ class Home:
         # 刷新精灵组(文档找不到详细说明，个人理解：直接按顺序调用group中每个实例化的sprite中的update())
         # 这里的update方法几乎都是重写的，一般都是根据动画帧找到下一帧来改变image属性，真正意义上的刷新画面是上面的custom_draw方法
         # 开商店暂停游戏(防止键盘输入)
-        if self.shop_active:
+
+        if self.player.game_paused:
+            self.confirm.display()
+            self.player.update_timers()
+        elif self.shop_active:
             # 菜单是单独的图层，必须后于精灵绘制（除非做成精灵并设置优先级）
             self.menu.update()
             # 看商店时间还会动
-            self.player.update_timers()
-        elif self.player.game_paused:
-            self.confirm.display()
             self.player.update_timers()
         else:
             # 不看菜单时才能动
             self.all_sprites.update(dt)
             # 植物收获碰撞判定
             self.plant_collision()
-
-        # 天气逻辑
-        # 开商店下雨暂停
-        if self.raining and not self.shop_active:
-            self.rain.update()
-        # 天色在下午2:00开始黯淡
-        if self.player.timers['time'].pass_time() / 1000 > 360:
-            # print('into dust')
-            self.sky.display(dt)
-
-        # 覆盖层
-        self.overlay.display()
+            # 天气
+            if self.raining:
+                self.rain.update()
+            # 天色在下午2:00开始黯淡
+            if self.player.timers['time'].pass_time() / 1000 > 360:
+                # print('into dust')
+                self.sky.display(dt)
+            # 覆盖层
+            self.overlay.display()
 
         # 最高优先级层，并且不受玩家影响，最后绘制所以一定在最上面
         # 玩家睡觉时调用过渡画面方法（reset也在这个里面跑）
@@ -287,6 +285,9 @@ class Home:
         # 画面渐变
         # 战斗 渐入 睡觉 暂停 只能同时跑一个 用elif语句
         if self.enter:
+            if rewards['fight'] > 0:
+                self.player.money += rewards['fight']
+                rewards['fight'] = 0
             if self.transition.fade_in and not self.transition.fade_out:
                 self.transition.color = 0
                 self.transition.fade_in = False

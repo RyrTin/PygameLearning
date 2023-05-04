@@ -42,8 +42,8 @@ class Player(pygame.sprite.Sprite):
         self.z = LAYERS['main']
 
         # 生命属性
-        self.health = 5
-        self.magic = 3
+        self.health = player_stats['health']
+        self.magic = player_stats['energy']
 
         # 移动属性：方向，位置，速度
         # 方向属性：使用一个2维向量保存移动方向

@@ -1,6 +1,7 @@
 import pygame
 
-from settings import *
+
+from data import *
 from tile import Tile
 from player import Player
 from levelplayer import LevelPlayer
@@ -219,6 +220,11 @@ class Level:
 
         if self.player.game_paused:
             self.confirm.display()
+        # 死亡时游戏结束
+        elif self.player.health <= 0:
+            # 不能移动
+            self.player.direction = pygame.math.Vector2()
+            self.toggle_finish()
         else:
             # 绘制图像
             self.display_surface.fill(WATER_COLOR)
@@ -229,6 +235,7 @@ class Level:
             self.visible_sprites.update()
             self.visible_sprites.enemy_update(self.player)
             self.player_attack_logic()
+            # 没有敌人时游戏结束
             if not self.enemy_sprites:
                 self.finish = True
 
@@ -248,6 +255,8 @@ class Level:
                 self.transition.fade_in = True
 
         elif self.finish:
+            rewards['fight'] = self.player.money
+            # print(rewards['fight'])
             if self.transition.fade_in and not self.transition.fade_out:
                 self.transition.fadein()
 

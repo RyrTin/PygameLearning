@@ -6,12 +6,10 @@ class UI:
     def __init__(self):
 
         # 基本设置
+        self.energy_bar_rect = None
+        self.health_bar_rect = None
         self.display_surface = pygame.display.get_surface()
         self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
-
-        # 状态栏设置
-        self.health_bar_rect = pygame.Rect(10, 10, HEALTH_BAR_WIDTH, BAR_HEIGHT)
-        self.energy_bar_rect = pygame.Rect(10, 34, ENERGY_BAR_WIDTH, BAR_HEIGHT)
 
         # 添加武器目录
         self.weapon_graphics = []
@@ -28,7 +26,7 @@ class UI:
 
     def show_bar(self, current, max_amount, bg_rect, color):
         # 绘制状态条
-        pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect, 0, 6)
 
         # 计算状态值百分比
         ratio = current / max_amount
@@ -37,8 +35,9 @@ class UI:
         current_rect.width = current_width
 
         # 填充状态值
-        pygame.draw.rect(self.display_surface, color, current_rect)
-        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
+        pygame.draw.rect(self.display_surface, color, current_rect, 0, 6)
+        # 填充边框
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 2, 6)
 
     # 显示金钱
     def show_money(self, money):
@@ -77,8 +76,21 @@ class UI:
 
         self.display_surface.blit(magic_surf, magic_rect)
 
+    def show_text(self):
+        hp_surf = self.font.render(f'HP', False, 'Black')
+        hp_rect = hp_surf.get_rect(topleft=OVERLAY_POSITIONS['health'])
+        self.display_surface.blit(hp_surf, hp_rect)
+        mp_surf = self.font.render(f'MP', False, 'Black')
+        mp_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['magic'])
+        self.display_surface.blit(mp_surf, mp_rect)
+
     # 更新UI条
     def display(self, player):
+        # 状态栏设置
+        self.health_bar_rect = pygame.Rect(70, 30, player.stats['health'] * 3, BAR_HEIGHT)
+        self.energy_bar_rect = pygame.Rect(70, 60, player.stats['energy'] * 3, BAR_HEIGHT)
+
+        self.show_text()
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
 

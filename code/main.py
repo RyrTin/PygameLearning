@@ -98,13 +98,15 @@ class Game:
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE and not self.home.enter:
+                        if event.key == pygame.K_ESCAPE and not self.home.enter and not self.home.fight:
                             # 切换页面状态
                             self.home.toggle_pause()
                 if self.home.player.quit:
                     self.home.toggle_active()
                     self.start.toggle_active()
                     self.home.toggle_quit()
+                    if self.home.shop_active:
+                        self.home.toggle_shop()
                     # 停止时间
                     self.home.stop_time()
                     self.stop = True
