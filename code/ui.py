@@ -107,6 +107,14 @@ class UI:
         atk_n_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['mag_n'])
         self.display_surface.blit(atk_n_surf, atk_n_rect)
 
+        hp_text = self.font.render(str(player.health) + '/' + str(player_stats['health']), False, 'White')
+        hp_text_rect = hp_text.get_rect(topleft=(80 + player_stats['health'] * 3, 30))
+        self.display_surface.blit(hp_text, hp_text_rect)
+
+        mp_text = self.font.render(str(player.energy) + '/' + str(player_stats['energy']), False, 'White')
+        mp_text_rect = hp_text.get_rect(topleft=(80 + player_stats['energy'] * 3, 60))
+        self.display_surface.blit(mp_text, mp_text_rect)
+
     def display_tip(self):
         title_surf = self.font_b.render('Q', False, 'White')
         title_rect = title_surf.get_rect(topleft=(42, SCREEN_HEIGHT - 120))

@@ -247,7 +247,7 @@ class Player(pygame.sprite.Sprite):
                         self.toggle_fight()
                         self.fight = True
                     # 时间到了才能睡觉(18:00)
-                    elif (480 + math.floor(self.timers['time'].pass_time() / 1000)) > 480:  # （完成测试后改成1080）
+                    elif (480 + math.floor(self.timers['time'].pass_time() / 1000)) > 1080:  # （完成测试后改成1080）
                         # 强制面朝左
                         self.status = 'left_idle'
                         self.sleep = True

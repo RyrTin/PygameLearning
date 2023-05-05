@@ -9,6 +9,7 @@ from timer import Timer
 class Menu:
     def __init__(self, player, toggle_menu):
         # 基本设置
+        self.buy_text_plant = None
         self.sell_text = None
         self.buy_text = None
         self.main_rect = None
@@ -28,10 +29,18 @@ class Menu:
         # 菜单内部
         # 获得所有物品
         self.upgrade = {'health': player_stats['health'],
-                        'energy': player_stats['energy']
+                        'energy': player_stats['energy'],
+                        'attack': player_stats['attack'],
+                        'magic': player_stats['magic']
                         }
-        self.options = list(self.player.item_inventory.keys()) + list(self.upgrade.keys())
-        self.sell_border = len(self.player.item_inventory) - 1
+        self.inventory = {'corn': item_inventory['corn'],
+                          'tomato': item_inventory['tomato']
+                          }
+        self.cost = {'attack': 'corn',
+                     'magic': 'tomato',
+                     }
+        self.options = list(self.inventory.keys()) + list(self.upgrade.keys())
+        self.inventory_border = len(self.player.item_inventory) - 3
         self.setup()
 
         # 移动选择
@@ -41,7 +50,7 @@ class Menu:
     def display_money(self):
 
         # 获得文字图片
-        text_surf = self.font.render(f'${self.player.money}', False, 'Black')
+        text_surf = self.font.render(f'${self.player.money}', False, 'Gold')
         text_rect = text_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 20))
 
         # 添加背景（个人觉得不好看，后面可以注释掉）
@@ -71,8 +80,9 @@ class Menu:
         self.main_rect = pygame.Rect(SCREEN_WIDTH / 2 - self.width / 2, self.menu_top, self.width, self.total_height)
 
         # 购买/出售 文本
-        self.buy_text = self.font.render('buy', False, 'Black')
-        self.sell_text = self.font.render('sell', False, 'Black')
+        self.buy_text = self.font.render('need $50', False, 'Black')
+        self.buy_text_plant = self.font.render('need 1 plant', False, 'Black')
+        self.sell_text = self.font.render('you have', False, 'Black')
 
     def input(self):
 
@@ -96,22 +106,30 @@ class Menu:
 
             if keys[pygame.K_j]:
                 self.timer.activate()
-
                 # 获得物品
                 current_item = self.options[self.index]
                 # print(current_item)
 
-                # 出售
-                if self.index <= self.sell_border:
-                    if self.player.item_inventory[current_item] > 0:
-                        self.player.item_inventory[current_item] -= 1
-                        self.player.money += SALE_PRICES[current_item]
-                # 购买
-                else:
+                # 升级生命 魔法
+                if self.inventory_border < self.index <= self.inventory_border + 2:
                     upgrade_price = PURCHASE_PRICES[current_item]
-                    if self.player.money >= upgrade_price and player_stats[current_item] < player_max_stats[current_item]:
+                    if self.player.money >= upgrade_price and player_stats[current_item] < player_max_stats[
+                        current_item]:
                         player_stats[current_item] += 10
+                        self.upgrade[current_item] = player_stats[current_item]
                         self.player.money -= PURCHASE_PRICES[current_item]
+                # 升级 攻击力 法术强度
+                elif self.inventory_border + 2 < self.index:
+                    upgrade_cost = self.cost[current_item]
+                    upgrade_price = PURCHASE_PRICES[current_item]
+                    print(upgrade_price)
+                    if item_inventory[upgrade_cost] >= upgrade_price:
+                        print(item_inventory[upgrade_cost])
+                        player_stats[current_item] += 1
+                        self.upgrade[current_item] = player_stats[current_item]
+                        player_max_stats[current_item] += 1
+                        item_inventory[upgrade_cost] -= PURCHASE_PRICES[current_item]
+                        self.inventory[upgrade_cost] = item_inventory[upgrade_cost]
 
         # 控制index的范围
         if self.index < 0:
@@ -140,12 +158,15 @@ class Menu:
             pygame.draw.rect(self.display_surface, 'black', bg_rect, 4, 4)
 
             # 不同区域显示不同字符
-            if self.index <= self.sell_border:
-                pos_rect = self.sell_text.get_rect(midleft=(self.main_rect.left + 250, bg_rect.centery))
+            if self.index <= self.inventory_border:
+                pos_rect = self.sell_text.get_rect(midleft=(self.main_rect.left + 190, bg_rect.centery))
                 self.display_surface.blit(self.sell_text, pos_rect)
-            else:
-                pos_rect = self.buy_text.get_rect(midleft=(self.main_rect.left + 250, bg_rect.centery))
+            elif self.inventory_border < self.index <= self.inventory_border + 2:
+                pos_rect = self.buy_text.get_rect(midleft=(self.main_rect.left + 190, bg_rect.centery))
                 self.display_surface.blit(self.buy_text, pos_rect)
+            else:
+                pos_rect = self.buy_text_plant.get_rect(midleft=(self.main_rect.left + 190, bg_rect.centery))
+                self.display_surface.blit(self.buy_text_plant, pos_rect)
 
     def display_tip(self):
 
@@ -162,10 +183,11 @@ class Menu:
         self.display_tip()
 
         for text_index, text_surf in enumerate(self.text_surfs):
+
             # 确定每个文字框的顶部位置
             top = self.main_rect.top + text_index * (text_surf.get_height() + (self.padding * 2) + self.space)
             # 获得所有物品数量
-            amount_list = list(self.player.item_inventory.values()) + list(player_stats.values())
+            amount_list = list(self.inventory.values()) + list(self.upgrade.values())
             amount = amount_list[text_index]
             self.show_entry(text_surf, amount, top, self.index == text_index)
 

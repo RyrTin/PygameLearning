@@ -94,7 +94,7 @@ class Interaction(Generic):
         title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 4 / 5))
         self.display_surface.blit(title_surf, title_rect)
         if self.name == 'Bed':
-            title_surf = self.font.render('you can sleep after 18:00', False, 'Black')
+            title_surf = self.font.render('You Can Sleep After 18:00', False, 'Black')
             title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 5 / 6))
             self.display_surface.blit(title_surf, title_rect)
 

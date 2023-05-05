@@ -18,6 +18,7 @@ class Overlay:
         self.player = player
         self.font_n = pygame.font.Font('../font/LycheeSoda.ttf', 30)
         self.font_w = pygame.font.Font('../font/LycheeSoda.ttf', 20)
+        self.font_b = pygame.font.Font('../font/LycheeSoda.ttf', 40)
 
         # 导入覆盖层（图标）的图片路径
         overlay_path = '../graphics/overlay/'
@@ -37,6 +38,20 @@ class Overlay:
         self.figure_surf = pygame.transform.scale(self.figure_surf_pre, (40, 30))
         self.figure_x = SCREEN_WIDTH - 120
         self.figure_y = SCREEN_HEIGHT - 550
+
+    def display_tip(self):
+        title_surf = self.font_b.render('Q', False, 'White')
+        title_rect = title_surf.get_rect(topleft=(42, SCREEN_HEIGHT - 120))
+        self.display_surface.blit(title_surf, title_rect)
+
+        title_surf = self.font_b.render('E', False, 'White')
+        title_rect = title_surf.get_rect(topleft=(92, SCREEN_HEIGHT - 102))
+        self.display_surface.blit(title_surf, title_rect)
+
+    def display_seed(self, player):
+        title_surf = self.font_n.render('you have ' + str(seed_inventory[player.selected_seed]), False, 'White')
+        title_rect = title_surf.get_rect(topleft=(100, SCREEN_HEIGHT - 40))
+        self.display_surface.blit(title_surf, title_rect)
 
     def display(self):
 
@@ -80,9 +95,20 @@ class Overlay:
         pygame.draw.rect(self.display_surface, 'Blue', magic_rect, 0, 6)
         pygame.draw.rect(self.display_surface, 'Black', health_rect, 2, 6)
         pygame.draw.rect(self.display_surface, 'Black', magic_rect, 2, 6)
+
+        # 显示文本
+        hp_text = self.font_w.render(str(player_stats['health']) + '/' + str(player_stats['health']), False, 'White')
+        hp_text_rect = hp_text.get_rect(topleft=(80 + player_stats['health'] * 3, 30))
+        self.display_surface.blit(hp_text, hp_text_rect)
+
         hp_surf = self.font_w.render(f'HP', False, 'Black')
         hp_rect = hp_surf.get_rect(topleft=OVERLAY_POSITIONS['health'])
         self.display_surface.blit(hp_surf, hp_rect)
+
+        mp_text = self.font_w.render(str(player_stats['energy']) + '/' + str(player_stats['energy']), False, 'White')
+        mp_text_rect = hp_text.get_rect(topleft=(80 + player_stats['energy'] * 3, 60))
+        self.display_surface.blit(mp_text, mp_text_rect)
+
         mp_surf = self.font_w.render(f'MP', False, 'Black')
         mp_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['magic'])
         self.display_surface.blit(mp_surf, mp_rect)
@@ -92,3 +118,5 @@ class Overlay:
         text_rect = text_surf.get_rect(midbottom=OVERLAY_POSITIONS['money'])
 
         self.display_surface.blit(text_surf, text_rect)
+        self.display_tip()
+        self.display_seed(self.player)

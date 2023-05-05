@@ -202,15 +202,24 @@ class Enemy(Entity):
 
     def attack_upgrade(self, player):
 
-        player.attack += 5
+        player.attack += 2
         if player.attack > player_max_stats['attack']:
             player.attack = player_max_stats['attack']
 
     def magic_upgrade(self, player):
 
-        player.m_atk += 4
+        player.m_atk += 2
         if player.m_atk > player_max_stats['magic']:
             player.m_atk = player_max_stats['magic']
+
+    def get_seed(self):
+
+        if randint(0, 10) > 7:
+            seed_inventory['corn'] += 1
+            print('get corn')
+        elif randint(0, 10) > 8:
+            seed_inventory['tomato'] += 1
+            print('get tomato')
 
     def check_death(self, player):
 
@@ -224,6 +233,7 @@ class Enemy(Entity):
             self.death_sound.play()
             self.add_money(self.money)
             self.energy_recover(player)
+            self.get_seed()
             if randint(0, 10) > 6:
                 self.attack_upgrade(player)
             elif randint(0, 10) > 5:

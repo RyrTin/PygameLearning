@@ -64,14 +64,14 @@ GROW_SPEED = {
 SALE_PRICES = {
     'wood': 10,
     'apple': 5,
-    'corn': 10,
-    'tomato': 20
 }
 
 # 购买价格
 PURCHASE_PRICES = {
     'health': 50,
-    'energy': 50
+    'energy': 50,
+    'attack': 1,
+    'magic': 1,
 }
 
 # 开始界面
@@ -144,13 +144,13 @@ monster_data = {
 item_inventory = {
             'wood': 5,
             'apple': 5,
-            'corn': 10,
-            'tomato': 10}
+            'corn': 5,
+            'tomato': 5}
 
 # 种子库存
 seed_inventory = {
-            'corn': 5,
-            'tomato': 5}
+            'corn': 2,
+            'tomato': 3}
 
 # 音量
 volumes = {'bgm': 0.4, 'action': 0.2, 'item': 0.1}
@@ -161,5 +161,5 @@ min_volume = 0
 rewards = {'fight': 0}
 
 # 玩家属性
-player_stats = {'health': 100, 'energy': 60, 'attack': 0, 'magic': 4, 'speed': 5}
+player_stats = {'health': 100, 'energy': 60, 'attack': 0, 'magic': 0, 'speed': 5}
 player_max_stats = {'health': 200, 'energy': 140, 'attack': 20, 'magic': 20, 'speed': 10}
