@@ -18,6 +18,7 @@ class Confirm:
         self.attribute_nr = 2
         self.attribute_names = ('yes', 'no')
         self.font = pygame.font.Font(UI_FONT, 40)
+        self.font_m = pygame.font.Font(UI_FONT, 30)
 
         # 属性条高度
         # 获得高度
@@ -74,7 +75,7 @@ class Confirm:
             # 获得显示区全宽
 
             full_width = self.display_surface.get_size()[0]
-            left = (index+1)*(full_width//3) - 100
+            left = (index + 1) * (full_width // 3) - 100
 
             # 每一条属性的顶边位置
             top = self.display_surface.get_size()[1] * 0.4
@@ -103,6 +104,7 @@ class Item:
         self.rect = pygame.Rect(l, t, w, h)
         self.index = index
         self.font = font
+        self.display_surface = pygame.display.get_surface()
 
     # 显示选项名称
     def display_names(self, surface, name, selected):
@@ -115,6 +117,11 @@ class Item:
         # 绘制表格
         surface.blit(title_surf, title_rect)
 
+    def display_tip(self):
+        title_surf = self.font.render('Press Space To Confirm', False, 'Black')
+        title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 4 / 5))
+        self.display_surface.blit(title_surf, title_rect)
+
     def display(self, surface, selection_num, name):
         # 绘制选中框
         if self.index == selection_num:
@@ -126,3 +133,4 @@ class Item:
             pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 4)
 
         self.display_names(surface, name, self.index == selection_num)
+        self.display_tip()

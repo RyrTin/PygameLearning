@@ -29,8 +29,8 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_p and not self.level.enter and not self.level.finish:
-                        self.level.toggle_finish()
+                    if event.key == pygame.K_p and not self.level.enter and not self.level.win:
+                        self.level.kill_all()
 
             self.level.run()
             pygame.display.update()

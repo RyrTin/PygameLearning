@@ -150,18 +150,18 @@ class Home:
                     toggle_fight=self.toggle_fight
                 )
             if obj.name == 'Bed':
-                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name, self.player)
 
             if obj.name == 'Trader':
-                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name, self.player)
 
             if obj.name == 'Fight':
-                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name, self.player)
 
         # 生成地图
         Generic(
             pos=(0, 0),
-            surf=pygame.image.load('../graphics/world/ground.png').convert_alpha(),
+            surf=pygame.image.load('../graphics/world/ground_2.png').convert_alpha(),
             groups=self.all_sprites,
             z=LAYERS['ground']
         )
@@ -266,6 +266,7 @@ class Home:
         else:
             # 不看菜单时才能动
             self.all_sprites.update(dt)
+            self.interaction_sprites.update()
             # 植物收获碰撞判定
             self.plant_collision()
             # 天气

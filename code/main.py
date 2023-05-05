@@ -136,12 +136,16 @@ class Game:
                                 # 切换页面状态
                                 self.level.toggle_pause()
                             # 一键跳过（测试）
-                            elif event.key == pygame.K_p and not self.level.enter and not self.level.finish:
-                                self.level.toggle_finish()
+                            elif event.key == pygame.K_p and not self.level.enter and not self.level.win:
+                                self.level.kill_all()
 
                     if self.level.player.quit:
+                        # 退出战斗
                         self.home.toggle_fight()
                         self.level.toggle_active()
+                    elif self.level.win:
+                        # 退出战斗
+                        self.home.toggle_fight()
 
 
 if __name__ == '__main__':

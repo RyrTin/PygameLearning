@@ -1,5 +1,8 @@
-import pygame
+# 作   者：许晨昊
+# 开发日期：2023/4/20
 
+
+import pygame
 
 from data import *
 from tile import Tile
@@ -20,6 +23,7 @@ class Level:
     def __init__(self):
 
         # 获得显示区域
+
         self.display_surface = pygame.display.get_surface()
         # 生成可视精灵组
         self.visible_sprites = YSortCameraGroup()
@@ -55,7 +59,7 @@ class Level:
         self.game_paused = False
         self.enter = True
         self.finish = False
-
+        self.win = False
         # 确认界面
         self.confirm = Confirm(self.player)
 
@@ -140,6 +144,9 @@ class Level:
     def toggle_finish(self):
         self.finish = not self.finish
 
+    def toggle_win(self):
+        self.win = not self.win
+
     def toggle_quit(self):
         self.player.quit = not self.player.quit
 
@@ -147,6 +154,11 @@ class Level:
 
         # 创建攻击（放入可视精灵组 攻击精灵组） （碰撞盒呢?)
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])
+
+    def kill_all(self):
+
+        for enemy in self.enemy_sprites:
+            enemy.kill()
 
     # 魔法
     def create_magic(self, style, strength, cost):
@@ -220,13 +232,20 @@ class Level:
 
         self.player.money += amount
 
+    def game_over(self):
+        font = pygame.font.Font(UI_FONT, 100)
+        title_surf = font.render('Game over', False, 'White')
+        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        self.display_surface.blit(title_surf, title_rect)
+
     # 运行
     def run(self):
 
         if self.player.game_paused:
             self.confirm.display()
+            # print('pause')
         # 死亡时游戏结束
-        if self.player.health <= 0:
+        elif self.player.health <= 0:
             # 不能移动
             self.player.direction = pygame.math.Vector2()
             self.toggle_finish()
@@ -249,7 +268,7 @@ class Level:
 
             # 没有敌人时游戏结束
             if not self.enemy_sprites:
-                self.finish = True
+                self.win = True
 
         # 画面渐变
         if self.enter:
@@ -267,8 +286,11 @@ class Level:
                 self.transition.fade_in = True
 
         elif self.finish:
-            rewards['fight'] = self.player.money
+            # 更新图像
+            # self.visible_sprites.custom_draw(self.player)
+            # rewards['fight'] = self.player.money
             # print(rewards['fight'])
+            self.game_over()
             if self.transition.fade_in and not self.transition.fade_out:
                 self.transition.fadein()
 
@@ -278,6 +300,20 @@ class Level:
                 self.transition.speed *= -1
                 self.toggle_quit()
                 # print(self.finish)
+        elif self.win:
+            # 更新图像
+            # self.visible_sprites.custom_draw(self.player)
+            rewards['fight'] = self.player.money
+            # print(rewards['fight'])
+            if self.transition.fade_in and not self.transition.fade_out:
+                self.transition.fadein()
+
+            elif self.transition.fade_in and self.transition.fade_out:
+                self.transition.fade_out = False
+                self.transition.color = 255
+                self.transition.speed *= -1
+                self.toggle_active()
+                self.toggle_win()
 
 
 # 重写精灵组（自定义绘制）

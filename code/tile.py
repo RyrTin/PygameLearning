@@ -1,3 +1,5 @@
+# 作   者：许晨昊
+# 开发日期：2023/4/15
 import pygame
 from data import *
 

@@ -1,3 +1,6 @@
+# 作   者：许晨昊
+# 开发日期：2023/4/25
+
 import pygame
 from settings import *
 
@@ -25,8 +28,8 @@ class UI:
             magic = pygame.image.load(magic['graphic']).convert_alpha()
             self.magic_graphics.append(magic)
 
+    # 绘制状态条
     def show_bar(self, current, max_amount, bg_rect, color):
-        # 绘制状态条
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect, 0, 6)
 
         # 计算状态值百分比
@@ -77,6 +80,7 @@ class UI:
 
         self.display_surface.blit(magic_surf, magic_rect)
 
+    # 显示文字
     def show_text(self, player):
         hp_surf = self.font.render(f'HP', False, 'Black')
         hp_rect = hp_surf.get_rect(topleft=OVERLAY_POSITIONS['health'])
@@ -93,13 +97,23 @@ class UI:
         atk_n_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['atk_n'])
         self.display_surface.blit(atk_n_surf, atk_n_rect)
 
-    # 更新UI条
+    def display_tip(self):
+        title_surf = self.font_b.render('Q', False, 'Gold')
+        title_rect = title_surf.get_rect(topleft=(42, SCREEN_HEIGHT - 120))
+        self.display_surface.blit(title_surf, title_rect)
+
+        title_surf = self.font_b.render('E', False, 'Gold')
+        title_rect = title_surf.get_rect(topleft=(112, SCREEN_HEIGHT - 112))
+        self.display_surface.blit(title_surf, title_rect)
+
+    # 更新UI
     def display(self, player):
 
         # 状态栏设置
         self.health_bar_rect = pygame.Rect(70, 30, player.stats['health'] * 3, BAR_HEIGHT)
         self.energy_bar_rect = pygame.Rect(70, 60, player.stats['energy'] * 3, BAR_HEIGHT)
         # 显示文字
+
         self.show_text(player)
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
@@ -109,3 +123,4 @@ class UI:
         # 显示武器栏、法术栏
         self.weapon_overlay(player.weapon_index, not player.can_switch_weapon)
         self.magic_overlay(player.magic_index, not player.can_switch_magic)
+        self.display_tip()

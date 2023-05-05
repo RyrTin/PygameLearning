@@ -27,7 +27,10 @@ class Menu:
 
         # 菜单内部
         # 获得所有物品
-        self.options = list(self.player.item_inventory.keys()) + list(self.player.seed_inventory.keys())
+        self.upgrade = {'health': player_stats['health'],
+                        'energy': player_stats['energy']
+                        }
+        self.options = list(self.player.item_inventory.keys()) + list(self.upgrade.keys())
         self.sell_border = len(self.player.item_inventory) - 1
         self.setup()
 
@@ -102,9 +105,9 @@ class Menu:
                         self.player.money += SALE_PRICES[current_item]
                 # 购买
                 else:
-                    seed_price = PURCHASE_PRICES[current_item]
-                    if self.player.money >= seed_price:
-                        self.player.seed_inventory[current_item] += 1
+                    upgrade_price = PURCHASE_PRICES[current_item]
+                    if self.player.money >= upgrade_price and player_stats[current_item] < player_max_stats[current_item]:
+                        player_stats[current_item] += 10
                         self.player.money -= PURCHASE_PRICES[current_item]
 
         # 控制index的范围
@@ -140,15 +143,24 @@ class Menu:
                 pos_rect = self.buy_text.get_rect(midleft=(self.main_rect.left + 250, bg_rect.centery))
                 self.display_surface.blit(self.buy_text, pos_rect)
 
+    def display_tip(self):
+        title_surf = self.font.render('Press J To Action', False, 'Black')
+        title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 5 / 6))
+        self.display_surface.blit(title_surf, title_rect)
+        title_surf = self.font.render('Press K To Exit', False, 'Black')
+        title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 6 / 7))
+        self.display_surface.blit(title_surf, title_rect)
+
     def update(self):
         self.input()
         self.display_money()
+        self.display_tip()
 
         for text_index, text_surf in enumerate(self.text_surfs):
             # 确定每个文字框的顶部位置
             top = self.main_rect.top + text_index * (text_surf.get_height() + (self.padding * 2) + self.space)
             # 获得所有物品数量
-            amount_list = list(self.player.item_inventory.values()) + list(self.player.seed_inventory.values())
+            amount_list = list(self.player.item_inventory.values()) + list(player_stats.values())
             amount = amount_list[text_index]
             self.show_entry(text_surf, amount, top, self.index == text_index)
 

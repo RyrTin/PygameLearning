@@ -1,3 +1,7 @@
+# 作   者：许晨昊
+# 开发日期：2023/4/19
+
+
 import pygame
 from math import sin
 

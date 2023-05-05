@@ -50,6 +50,7 @@ class LevelPlayer(Entity):
         # 界面状态
         self.quit = False
         self.game_paused = False
+        self.win = False
 
         # 攻击计时器
         self.vulnerable = True

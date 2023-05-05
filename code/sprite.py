@@ -1,5 +1,5 @@
 # 作   者：许晨昊
-# 开发日期：15/3/2023
+# 开发日期：2023/3/15
 import pygame
 from data import *
 from random import randint, choice
@@ -43,10 +43,64 @@ class Water(Generic):
 
 
 class Interaction(Generic):
-    def __init__(self, pos, size, groups, name):
+    def __init__(self, pos, size, groups, name, player):
+
         surf = pygame.Surface(size)
         super().__init__(pos, surf, groups)
         self.name = name
+        self.player = player
+        # 获得与玩家的距离
+        self.action_radius = 100
+        self.status = None
+        self.font = pygame.font.Font(UI_FONT, 30)
+        self.display_surface = pygame.display.get_surface()
+
+    def get_player_distance_direction(self):
+        enemy_vec = pygame.math.Vector2(self.rect.center)
+        player_vec = pygame.math.Vector2(self.player.rect.center)
+        # 获得欧氏距离
+        distance = (player_vec - enemy_vec).magnitude()
+
+        if distance > 0:
+            # 标准化距离（把距离转化为方向）
+            direction = (player_vec - enemy_vec).normalize()
+        else:
+            direction = pygame.math.Vector2()
+
+        return distance, direction
+
+        # 获得状态
+
+    def get_status(self):
+        # 获得距离
+        distance = self.get_player_distance_direction()[0]
+        if distance <= self.action_radius:
+            self.status = 'active'
+        # 待机
+        else:
+            self.status = 'idle'
+
+        # print(self.status)
+        # 获得行为（根据状态）
+
+    def display_tip(self):
+        if self.name == 'Bed':
+            word = 'Sleep'
+        elif self.name == 'Trader':
+            word = 'Shop'
+        elif self.name == 'Fight':
+            word = 'Level'
+        title_surf = self.font.render('Press Enter To ' + word, False, 'Black')
+        title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 4 / 5))
+        self.display_surface.blit(title_surf, title_rect)
+
+    def actions(self):
+        if self.status == 'active':
+            self.display_tip()
+
+    def update(self):
+        self.get_status()
+        self.actions()
 
 
 # 花朵同理

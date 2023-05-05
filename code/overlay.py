@@ -71,8 +71,8 @@ class Overlay:
 
         # 显示状态
         # rect的参数为（区域，颜色，（（左，顶），（宽，高）），边框宽度，弧度）
-        health_rect = (70, 30, self.player.health * 3, 20)
-        magic_rect = (70, 60, self.player.magic * 3, 20)
+        health_rect = (70, 30, player_stats['health'] * 3, 20)
+        magic_rect = (70, 60, player_stats['energy'] * 3, 20)
         pygame.draw.rect(self.display_surface, 'Pink', health_rect, 0, 6)
         pygame.draw.rect(self.display_surface, 'Blue', magic_rect, 0, 6)
         pygame.draw.rect(self.display_surface, 'Black', health_rect, 2, 6)

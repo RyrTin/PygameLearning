@@ -68,8 +68,8 @@ SALE_PRICES = {
 
 # 购买价格
 PURCHASE_PRICES = {
-    'corn': 4,
-    'tomato': 5
+    'health': 50,
+    'energy': 50
 }
 
 # 开始界面

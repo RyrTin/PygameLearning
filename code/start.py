@@ -161,6 +161,11 @@ class Start:
         # 切换
         self.settings_active = not self.settings_active
 
+    def display_tip(self):
+        title_surf = self.font.render('Press J To Confirm', False, 'Black')
+        title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 4 / 5))
+        self.display_surface.blit(title_surf, title_rect)
+
     def update(self, dt):
         self.display_surface.fill('black')
         self.animate(dt)
@@ -185,6 +190,7 @@ class Start:
             self.input()
 
             self.show_title(self.title_surf)
+            self.display_tip()
             for text_index, text_surf in enumerate(self.text_surfs):
                 # 确定每个文字框的顶部位置
                 top = self.main_rect.top + text_index * (text_surf.get_height() + (self.padding * 2) + self.space)
