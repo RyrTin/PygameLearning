@@ -1,12 +1,18 @@
+# 作   者：许晨昊
+# 开发日期：2023/4/20
+
 import pygame
 from data import *
 from support import *
 from entity import *
 from confirm import *
+import random
 
 
 class LevelPlayer(Entity):
     def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack, create_magic):
+
+        # 初始化
         super().__init__(groups)
         self.image = pygame.image.load('../graphics/character/down/0.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=pos)
@@ -18,7 +24,7 @@ class LevelPlayer(Entity):
 
         # 行动
         self.attacking = False
-        self.attack_cooldown = 400
+        self.attack_cooldown = 100
         self.attack_time = None
         self.obstacle_sprites = obstacle_sprites
 
@@ -26,7 +32,10 @@ class LevelPlayer(Entity):
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
         self.weapon_index = 0
-        self.weapon = list(weapon_data.keys())[self.weapon_index]
+        self.weapon_list = list(random.sample(weapon_data.keys(), 2))
+
+        # print(self.weapon_list)
+        self.weapon = self.weapon_list[self.weapon_index]
         self.can_switch_weapon = True
         self.weapon_switch_time = None
         self.switch_duration_cooldown = 200
@@ -41,9 +50,12 @@ class LevelPlayer(Entity):
         # 玩家状态
         self.stats = player_stats
         self.max_stats = player_max_stats
+
         # 血量（测试进入半血）
-        self.health = self.stats['health'] * 0.2
-        self.energy = self.stats['energy'] * 0.5
+        self.health = self.stats['health']
+        self.energy = self.stats['energy']
+        self.attack = self.stats['attack']
+        self.m_atk = self.stats['magic']
         self.money = 0
         self.speed = self.stats['speed']
 
@@ -62,6 +74,7 @@ class LevelPlayer(Entity):
         self.weapon_attack_sound.set_volume(volumes['action'])
 
     def import_player_assets(self):
+
         character_path = '../graphics/character/'
         self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
                            'right_idle': [], 'left_idle': [], 'up_idle': [], 'down_idle': [],
@@ -73,6 +86,7 @@ class LevelPlayer(Entity):
 
     def input(self):
         if not self.attacking:
+
             keys = pygame.key.get_pressed()
 
             # 玩家移动
@@ -114,12 +128,12 @@ class LevelPlayer(Entity):
                 self.can_switch_weapon = False
                 self.weapon_switch_time = pygame.time.get_ticks()
 
-                if self.weapon_index < len(list(weapon_data.keys())) - 1:
+                if self.weapon_index < len(self.weapon_list) - 1:
                     self.weapon_index += 1
                 else:
                     self.weapon_index = 0
 
-                self.weapon = list(weapon_data.keys())[self.weapon_index]
+                self.weapon = self.weapon_list[self.weapon_index]
 
             if keys[pygame.K_e] and self.can_switch_magic:
                 self.can_switch_magic = False
@@ -154,12 +168,16 @@ class LevelPlayer(Entity):
 
     # 攻击冷却
     def cooldowns(self):
+
         # 获得攻击发动时间
         current_time = pygame.time.get_ticks()
 
         if self.attacking:
             if current_time - self.attack_time >= self.attack_cooldown + weapon_data[self.weapon]['cooldown']:
                 self.attacking = False
+
+            # 攻击模型需要早于冷却消失 否则无限击退
+            if current_time - self.attack_time >= self.attack_cooldown:
                 self.destroy_attack()
 
         if not self.can_switch_weapon:
@@ -175,6 +193,7 @@ class LevelPlayer(Entity):
                 self.vulnerable = True
 
     def animate(self):
+
         animation = self.animations[self.status]
 
         # 循环播放动画帧
@@ -194,32 +213,20 @@ class LevelPlayer(Entity):
             self.image.set_alpha(255)
 
     def get_full_weapon_damage(self):
-        base_damage = self.stats['attack']
+        base_damage = self.attack
         weapon_damage = weapon_data[self.weapon]['damage']
         return base_damage + weapon_damage
 
     def get_full_magic_damage(self):
-        base_damage = self.stats['magic']
+        base_damage = self.m_atk
         spell_damage = magic_data[self.magic]['strength']
         return base_damage + spell_damage
 
-    def get_value_by_index(self, index):
-        return list(self.stats.values())[index]
-
-    def get_cost_by_index(self, index):
-        return list(self.upgrade_cost.values())[index]
-
-    def energy_recovery(self):
-        if self.energy < self.stats['energy']:
-            self.energy += 0.01 * self.stats['magic']
-        else:
-            self.energy = self.stats['energy']
-
     def update(self):
+
         self.weapon_attack_sound.set_volume(volumes['action'])
         self.input()
         self.cooldowns()
         self.get_status()
         self.animate()
         self.move(self.stats['speed'])
-        self.energy_recovery()

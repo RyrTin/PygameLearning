@@ -94,18 +94,11 @@ class Player(pygame.sprite.Sprite):
         self.fight = False
 
         # 玩家资产(词典)
-        self.item_inventory = {
-            'wood': 20,
-            'apple': 20,
-            'corn': 20,
-            'tomato': 20
-        }
-        self.seed_inventory = {
-            'corn': 5,
-            'tomato': 5
-        }
+        self.item_inventory = item_inventory
+        self.seed_inventory = seed_inventory
 
-        self.money = 999
+        # 金币
+        self.money = 100
 
         # 土壤
         self.soil_layer = soil_layer

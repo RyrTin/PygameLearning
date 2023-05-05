@@ -6,7 +6,7 @@ from settings import *
 
 
 class UI:
-    def __init__(self):
+    def __init__(self, player):
 
         # 基本设置
         self.energy_bar_rect = None
@@ -14,11 +14,12 @@ class UI:
         self.display_surface = pygame.display.get_surface()
         self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
         self.font_b = pygame.font.Font(UI_FONT, UI_FONT_SIZE + 10)
+        self.player = player
 
         # 添加武器目录
         self.weapon_graphics = []
-        for weapon in weapon_data.values():
-            path = weapon['graphic']
+        for weapon_name in self.player.weapon_list:
+            path = weapon_data[weapon_name]['graphic']
             weapon = pygame.image.load(path).convert_alpha()
             self.weapon_graphics.append(weapon)
 
@@ -92,17 +93,26 @@ class UI:
         atk_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['atk'])
         self.display_surface.blit(atk_surf, atk_rect)
 
+        atk_surf = self.font.render(f'MAG', False, 'Purple')
+        atk_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['mag'])
+        self.display_surface.blit(atk_surf, atk_rect)
+
         atk_n = str(player.get_full_weapon_damage())
         atk_n_surf = self.font_b.render(atk_n, False, 'Gold')
         atk_n_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['atk_n'])
         self.display_surface.blit(atk_n_surf, atk_n_rect)
 
+        atk_n = str(player.get_full_magic_damage())
+        atk_n_surf = self.font_b.render(atk_n, False, 'Purple')
+        atk_n_rect = mp_surf.get_rect(topleft=OVERLAY_POSITIONS['mag_n'])
+        self.display_surface.blit(atk_n_surf, atk_n_rect)
+
     def display_tip(self):
-        title_surf = self.font_b.render('Q', False, 'Gold')
+        title_surf = self.font_b.render('Q', False, 'White')
         title_rect = title_surf.get_rect(topleft=(42, SCREEN_HEIGHT - 120))
         self.display_surface.blit(title_surf, title_rect)
 
-        title_surf = self.font_b.render('E', False, 'Gold')
+        title_surf = self.font_b.render('E', False, 'White')
         title_rect = title_surf.get_rect(topleft=(112, SCREEN_HEIGHT - 112))
         self.display_surface.blit(title_surf, title_rect)
 

@@ -54,6 +54,7 @@ class Home:
 
         # 天空
         self.rain = Rain(self.all_sprites)
+
         # 默认不下雨
         self.raining = False
         self.soil_layer.raining = self.raining

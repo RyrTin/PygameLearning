@@ -1,5 +1,6 @@
 # 作   者：许晨昊
 # 开发日期：2023/4/20
+from random import randint
 
 import pygame
 from settings import *
@@ -190,7 +191,28 @@ class Enemy(Entity):
             # 标志进入无敌帧
             self.vulnerable = False
 
-    def check_death(self):
+            self.energy_recover(player)
+
+    def energy_recover(self, player):
+
+        if randint(0, 10) > 5:
+            player.energy += 5
+            if player.energy > player_stats['energy']:
+                player.energy = player_stats['energy']
+
+    def attack_upgrade(self, player):
+
+        player.attack += 5
+        if player.attack > player_max_stats['attack']:
+            player.attack = player_max_stats['attack']
+
+    def magic_upgrade(self, player):
+
+        player.m_atk += 4
+        if player.m_atk > player_max_stats['magic']:
+            player.m_atk = player_max_stats['magic']
+
+    def check_death(self, player):
 
         # 看看噶了没
         if self.health <= 0:
@@ -201,11 +223,16 @@ class Enemy(Entity):
             # 播放击杀音效
             self.death_sound.play()
             self.add_money(self.money)
+            self.energy_recover(player)
+            if randint(0, 10) > 6:
+                self.attack_upgrade(player)
+            elif randint(0, 10) > 5:
+                self.magic_upgrade(player)
 
     # 受击效果
     def hit_reaction(self):
 
-        # 是否在无敌阵
+        # 是否在无敌帧数
         if not self.vulnerable:
             # 往反方向退
             self.direction *= -self.resistance
@@ -220,10 +247,10 @@ class Enemy(Entity):
         self.move(self.speed)
         self.animate()
         self.cooldowns()
-        self.check_death()
 
     def enemy_update(self, player):
 
         # 需要自己调用 与玩家交互时的更新方法
         self.get_status(player)
         self.actions(player)
+        self.check_death(player)

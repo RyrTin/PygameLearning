@@ -39,6 +39,7 @@ class Menu:
         self.timer = Timer(200)
 
     def display_money(self):
+
         # 获得文字图片
         text_surf = self.font.render(f'${self.player.money}', False, 'Black')
         text_rect = text_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 20))
@@ -60,11 +61,12 @@ class Menu:
             self.text_surfs.append(text_surf)
             self.total_height += text_surf.get_height() + (self.padding * 2)
 
-        # 确定显示框的位置
         # 计算总高
         self.total_height += (len(self.text_surfs) - 1) + self.space
+
         # 菜单顶部位置
         self.menu_top = SCREEN_HEIGHT / 2 - self.total_height / 2
+
         # 生成菜单矩形
         self.main_rect = pygame.Rect(SCREEN_WIDTH / 2 - self.width / 2, self.menu_top, self.width, self.total_height)
 
@@ -73,6 +75,7 @@ class Menu:
         self.sell_text = self.font.render('sell', False, 'Black')
 
     def input(self):
+
         keys = pygame.key.get_pressed()
         # 时间到了就关闭计时器
         self.timer.update()
@@ -117,6 +120,7 @@ class Menu:
             self.index = 0
 
     def show_entry(self, text_surf, amount, top, selected):
+
         # 文本背景条
         bg_rect = pygame.Rect(self.main_rect.left, top, self.width, text_surf.get_height() + (self.padding * 2))
         pygame.draw.rect(self.display_surface, 'White', bg_rect, 0, 4)
@@ -144,6 +148,7 @@ class Menu:
                 self.display_surface.blit(self.buy_text, pos_rect)
 
     def display_tip(self):
+
         title_surf = self.font.render('Press J To Action', False, 'Black')
         title_rect = title_surf.get_rect(midbottom=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 5 / 6))
         self.display_surface.blit(title_surf, title_rect)

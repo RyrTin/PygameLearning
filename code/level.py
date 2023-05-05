@@ -1,12 +1,9 @@
 # 作   者：许晨昊
 # 开发日期：2023/4/20
 
-
 import pygame
-
 from data import *
 from tile import Tile
-from player import Player
 from levelplayer import LevelPlayer
 from support import *
 from random import choice, randint
@@ -23,10 +20,11 @@ class Level:
     def __init__(self):
 
         # 获得显示区域
-
         self.display_surface = pygame.display.get_surface()
+
         # 生成可视精灵组
         self.visible_sprites = YSortCameraGroup()
+
         # 生成碰撞精灵组
         self.obstacle_sprites = pygame.sprite.Group()
 
@@ -39,11 +37,11 @@ class Level:
         # 初始化玩家
         self.player = None
 
-        # 创建地图
+        # 创建地图 玩家
         self.create_map()
 
         # 交互界面
-        self.ui = UI()
+        self.ui = UI(self.player)
 
         # 渐变
         self.transition = Transition()
@@ -60,6 +58,7 @@ class Level:
         self.enter = True
         self.finish = False
         self.win = False
+
         # 确认界面
         self.confirm = Confirm(self.player)
 
@@ -233,8 +232,16 @@ class Level:
         self.player.money += amount
 
     def game_over(self):
+
         font = pygame.font.Font(UI_FONT, 100)
-        title_surf = font.render('Game over', False, 'White')
+        title_surf = font.render('Game Over', False, 'White')
+        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        self.display_surface.blit(title_surf, title_rect)
+
+    def you_win(self):
+
+        font = pygame.font.Font(UI_FONT, 100)
+        title_surf = font.render('You  Win', False, 'White')
         title_rect = title_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
         self.display_surface.blit(title_surf, title_rect)
 
@@ -244,11 +251,16 @@ class Level:
         if self.player.game_paused:
             self.confirm.display()
             # print('pause')
+
         # 死亡时游戏结束
         elif self.player.health <= 0:
             # 不能移动
             self.player.direction = pygame.math.Vector2()
             self.toggle_finish()
+        # 没有敌人时游戏结束
+        elif not self.enemy_sprites:
+            self.player.direction = pygame.math.Vector2()
+            self.toggle_win()
         else:
             # 绘制背景
             self.display_surface.fill(WATER_COLOR)
@@ -265,10 +277,6 @@ class Level:
 
             # 更新ui
             self.ui.display(self.player)
-
-            # 没有敌人时游戏结束
-            if not self.enemy_sprites:
-                self.win = True
 
         # 画面渐变
         if self.enter:
@@ -290,6 +298,7 @@ class Level:
             # self.visible_sprites.custom_draw(self.player)
             # rewards['fight'] = self.player.money
             # print(rewards['fight'])
+            rewards['fight'] = round(self.player.money*0.3)
             self.game_over()
             if self.transition.fade_in and not self.transition.fade_out:
                 self.transition.fadein()
@@ -300,11 +309,14 @@ class Level:
                 self.transition.speed *= -1
                 self.toggle_quit()
                 # print(self.finish)
+
         elif self.win:
             # 更新图像
             # self.visible_sprites.custom_draw(self.player)
             rewards['fight'] = self.player.money
             # print(rewards['fight'])
+            self.you_win()
+
             if self.transition.fade_in and not self.transition.fade_out:
                 self.transition.fadein()
 
@@ -312,8 +324,8 @@ class Level:
                 self.transition.fade_out = False
                 self.transition.color = 255
                 self.transition.speed *= -1
-                self.toggle_active()
-                self.toggle_win()
+                # self.toggle_active()
+                self.toggle_quit()
 
 
 # 重写精灵组（自定义绘制）

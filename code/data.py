@@ -20,6 +20,8 @@ OVERLAY_POSITIONS = {
     'magic': (40, 60),
     'atk': (40, 90),
     'atk_n': (80, 90),
+    'mag': (150, 90),
+    'mag_n': (190, 90),
     'money': (SCREEN_WIDTH - 120, SCREEN_HEIGHT - 440)
 }
 
@@ -60,8 +62,8 @@ GROW_SPEED = {
 
 # 出售售价
 SALE_PRICES = {
-    'wood': 4,
-    'apple': 2,
+    'wood': 10,
+    'apple': 5,
     'corn': 10,
     'tomato': 20
 }
@@ -112,32 +114,44 @@ BG_COLOR_SELECTED = '#EEEEEE'
 
 # 武器数据
 weapon_data = {'GM_sword': {
-    'cooldown': 10, 'damage': 9999, 'graphic': '../graphics/weapons/GM_sword/full.png'},
-    'sword': {'cooldown': 100, 'damage': 15, 'graphic': '../graphics/weapons/sword/full.png'},
-    'lance': {'cooldown': 400, 'damage': 30, 'graphic': '../graphics/weapons/lance/full.png'},
-    'axe': {'cooldown': 300, 'damage': 20, 'graphic': '../graphics/weapons/axe/full.png'},
-    'rapier': {'cooldown': 50, 'damage': 8, 'graphic': '../graphics/weapons/rapier/full.png'},
-    'sai': {'cooldown': 80, 'damage': 10, 'graphic': '../graphics/weapons/sai/full.png'}}
+    'cooldown': 200, 'damage': 9999, 'graphic': '../graphics/weapons/GM_sword/full.png'},
+    'sword': {'cooldown': 300, 'damage': 15, 'graphic': '../graphics/weapons/sword/full.png'},
+    'lance': {'cooldown': 600, 'damage': 30, 'graphic': '../graphics/weapons/lance/full.png'},
+    'axe': {'cooldown': 500, 'damage': 25, 'graphic': '../graphics/weapons/axe/full.png'},
+    'rapier': {'cooldown': 150, 'damage': 8, 'graphic': '../graphics/weapons/rapier/full.png'},
+    'sai': {'cooldown': 120, 'damage': 10, 'graphic': '../graphics/weapons/sai/full.png'}}
 
 # 技能数据
 magic_data = {
     'flame': {'strength': 5, 'cost': 20, 'graphic': '../graphics/particles/flame/fire.png'},
-    'heal': {'strength': 20, 'cost': 10, 'graphic': '../graphics/particles/heal/heal.png'}}
+    'heal': {'strength': 20, 'cost': 30, 'graphic': '../graphics/particles/heal/heal.png'}}
 
 # 敌人数据
 monster_data = {
-    'squid': {'health': 100, 'money': 10, 'damage': 20, 'attack_type': 'slash',
+    'squid': {'health': 100, 'money': 8, 'damage': 18, 'attack_type': 'slash',
               'attack_sound': '../audio/attack/slash.wav', 'speed': 3, 'resistance': 3, 'attack_radius': 80,
               'notice_radius': 360},
-    'raccoon': {'health': 300, 'money': 25, 'damage': 40, 'attack_type': 'claw',
-                'attack_sound': '../audio/attack/claw.wav', 'speed': 2, 'resistance': 3, 'attack_radius': 120,
+    'raccoon': {'health': 300, 'money': 15, 'damage': 40, 'attack_type': 'claw',
+                'attack_sound': '../audio/attack/claw.wav', 'speed': 3, 'resistance': 3, 'attack_radius': 130,
                 'notice_radius': 400},
-    'spirit': {'health': 100, 'money': 15, 'damage': 8, 'attack_type': 'thunder',
+    'spirit': {'health': 100, 'money': 5, 'damage': 12, 'attack_type': 'thunder',
                'attack_sound': '../audio/attack/fireball.wav', 'speed': 4, 'resistance': 3, 'attack_radius': 60,
                'notice_radius': 350},
-    'bamboo': {'health': 70, 'money': 12, 'damage': 6, 'attack_type': 'leaf_attack',
+    'bamboo': {'health': 70, 'money': 3, 'damage': 8, 'attack_type': 'leaf_attack',
                'attack_sound': '../audio/attack/slash.wav', 'speed': 3, 'resistance': 3, 'attack_radius': 50,
                'notice_radius': 300}}
+# 仓库
+item_inventory = {
+            'wood': 5,
+            'apple': 5,
+            'corn': 10,
+            'tomato': 10}
+
+# 种子库存
+seed_inventory = {
+            'corn': 5,
+            'tomato': 5}
+
 # 音量
 volumes = {'bgm': 0.4, 'action': 0.2, 'item': 0.1}
 max_volume = {'bgm': 0.8, 'action': 0.4, 'item': 0.4}
@@ -148,4 +162,4 @@ rewards = {'fight': 0}
 
 # 玩家属性
 player_stats = {'health': 100, 'energy': 60, 'attack': 0, 'magic': 4, 'speed': 5}
-player_max_stats = {'health': 200, 'energy': 140, 'attack': 30, 'magic': 10, 'speed': 10}
+player_max_stats = {'health': 200, 'energy': 140, 'attack': 20, 'magic': 20, 'speed': 10}

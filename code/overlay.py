@@ -11,6 +11,7 @@ import math
 # 覆盖层类似于UI的功能，并且相对于其他元素，这里的东西都固定在屏幕上
 class Overlay:
     def __init__(self, player):
+
         # 初始设置 导入player
         self.time = None
         self.display_surface = pygame.display.get_surface()
@@ -20,6 +21,7 @@ class Overlay:
 
         # 导入覆盖层（图标）的图片路径
         overlay_path = '../graphics/overlay/'
+
         # 建立工具图像字典
         self.tools_surf = {tool: pygame.image.load(f'{overlay_path}{tool}.png').convert_alpha()
                            for tool in player.tools}
@@ -37,6 +39,7 @@ class Overlay:
         self.figure_y = SCREEN_HEIGHT - 550
 
     def display(self):
+
         # 显示工具图标
         tool_surf = self.tools_surf[self.player.selected_tool]
         tool_rect = tool_surf.get_rect(midbottom=OVERLAY_POSITIONS['tool'])
